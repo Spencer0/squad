@@ -22,7 +22,7 @@ Controls:
 - **Two chapters**, each about 13 stops and 20-30 minutes: *Operation Hedgerow* (boss: the relic tank "Grave Lantern") and *Operation Frostfall* (boss: the Hollow Saint).
 - **Map nodes:** Skirmish, Elite, Intel (7 text events), Supply drop, Field camp, Cache, Strongpoint mini-boss and Boss. The map reshuffles every run; story beats stay fixed.
 - **Combat:** turn-order timeline, Fire / Ability / Item / Take Cover / Swap, and AP. Offense uses three input types: a shrinking ring, rhythm beats and hold-and-release. Defense has Hit the Dirt, Counter-shot and feints. Also Break, Burn, shields, cover, and single/spread/blast targeting.
-- **Boons:** 57 boons across Incendiary, Field Medic, Recon, Sapper, Captured Relics, Duo and Curse cards, plus level-up stat cards. Rerolls and skip-for-gold.
+- **Boons:** 50 boons across Incendiary, Field Medic, Recon, Sapper, Captured Relics, Duo and Curse cards, plus 6 level-up stat cards. Rerolls and skip-for-gold.
 - **Meta-progression:** points per fight, a clear bonus, Perfect, no-death and speed bonuses, and 25% banked on a loss.
 - **Accessibility:** wider timing windows, auto-timing on offense, auto Hit the Dirt on defense, fast animations, screen shake and sound toggles.
 - **Saves:** stored in the browser automatically after every map step.
