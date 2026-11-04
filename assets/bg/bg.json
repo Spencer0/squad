@@ -1,0 +1,59 @@
+{
+  "us_farm": {
+    "file": "us_farm.jpg",
+    "w": 1600,
+    "h": 900
+  },
+  "us_city": {
+    "file": "us_city.jpg",
+    "w": 1600,
+    "h": 900
+  },
+  "eu_hedgerow": {
+    "file": "eu_hedgerow.jpg",
+    "w": 1600,
+    "h": 900
+  },
+  "eu_village": {
+    "file": "eu_village.jpg",
+    "w": 1600,
+    "h": 900
+  },
+  "asia_jungle": {
+    "file": "asia_jungle.jpg",
+    "w": 1600,
+    "h": 900
+  },
+  "asia_snow": {
+    "file": "asia_snow.jpg",
+    "w": 1600,
+    "h": 900
+  },
+  "base": {
+    "file": "base.jpg",
+    "w": 1600,
+    "h": 900,
+    "stations": {
+      "command": [
+        0.3908,
+        0.2266
+      ],
+      "barracks": [
+        0.6586,
+        0.2336
+      ],
+      "armory": [
+        0.2578,
+        0.4395
+      ],
+      "radio": [
+        0.7758,
+        0.4508
+      ],
+      "crate": [
+        0.5153,
+        0.5714
+      ]
+    }
+  }
+}

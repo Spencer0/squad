@@ -47,7 +47,24 @@ G.mapAvailable = () => {
 G.cityPos = (chId) => {
   const m = D.assets && D.assets.maps && D.assets.maps[chId];
   const world = D.world[chId];
-  if (m && m.cities && world.cities.every((c) => m.cities[c.id])) return { pos: m.cities, w: m.w, h: m.h, src: m.src };
+  if (m && m.cities) {
+    const pos = { ...m.cities };
+    const known = world.cities.filter((c) => pos[c.id]);
+    const missing = world.cities.filter((c) => !pos[c.id]);
+    if (missing.length && known.length >= 3) {
+      // least-squares affine fit lat/lon -> image fractions from the cities we do know
+      const fit = (k) => {
+        let s = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], r = [0, 0, 0];
+        known.forEach((c) => { const v = [c.lon, c.lat, 1]; for (let i = 0; i < 3; i++) { r[i] += v[i] * pos[c.id][k]; for (let j = 0; j < 3; j++) s[i][j] += v[i] * v[j]; } });
+        const det = (M) => M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+        const D0 = det(s);
+        return [0, 1, 2].map((i) => det(s.map((row, ri) => row.map((x, ci) => (ci === i ? r[ri] : x)))) / D0);
+      };
+      const fx = fit(0), fy = fit(1);
+      missing.forEach((c) => { pos[c.id] = [fx[0] * c.lon + fx[1] * c.lat + fx[2], fy[0] * c.lon + fy[1] * c.lat + fy[2]]; });
+    }
+    if (world.cities.every((c) => pos[c.id])) return { pos, w: m.w, h: m.h, src: m.src };
+  }
   const lats = world.cities.map((c) => c.lat), lons = world.cities.map((c) => c.lon);
   const midLat = (Math.min(...lats) + Math.max(...lats)) / 2;
   const k = Math.cos((midLat * Math.PI) / 180);
