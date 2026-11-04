@@ -571,6 +571,9 @@ G.art = (() => {
     sapper: { side: 'ally', cls: 'sapper' }, veteran: { side: 'ally', cls: 'veteran' },
     e_rifleman: { side: 'enemy', art: 'infantry' }, e_grenadier: { side: 'enemy', art: 'grenadier' }, e_flamer: { side: 'enemy', art: 'flamer' },
     e_ski: { side: 'enemy', art: 'ski' }, e_mortar: { side: 'enemy', art: 'mortar' }, e_officer: { side: 'enemy', art: 'officer' }, e_shock: { side: 'enemy', art: 'shock' },
+    shield: { side: 'ally', cls: 'sapper' }, bugler: { side: 'ally', cls: 'medic' },
+    e_werewolf: { side: 'enemy', art: 'shock' }, e_magus: { side: 'enemy', art: 'officer' }, e_dwarf: { side: 'enemy', art: 'grenadier' },
+    e_elf: { side: 'enemy', art: 'ski' }, e_priest: { side: 'enemy', art: 'officer' }, e_ghoul: { side: 'enemy', art: 'infantry' },
   };
   const figInfo = (name) => G.art.units && G.art.units[name];
   let figTint = null;

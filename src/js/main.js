@@ -35,7 +35,7 @@ G.renderMapScreen = () => {
   entries.forEach((e) => foot.append(G.el('div', { class: `mini-sq ${e.hero ? 'hero' : ''}`, title: e.name },
     G.el('img', { src: G.art.figPortrait(e.figure, 64), alt: '' }),
     G.el('div', {}, G.el('div', { text: `${e.name} ${e.tag}` }), G.el('div', { class: 'mini-hp' }, G.el('i', { style: { width: `${Math.max(0, e.frac) * 100}%`, background: e.frac < 0.35 ? 'var(--bad)' : '' } }))))));
-  foot.append(G.el('div', { class: 'map-hint', text: 'Tap a glowing city to move there.' }));
+  
 };
 
 G.mapLoop = () => {
@@ -249,7 +249,7 @@ G.autotest = async () => {
       };
       const cap = G.armyCap();
       const army = [];
-      const types = ['rifle', 'mg', 'sapper', 'medic', 'rifle', 'sapper', 'mg'];
+      const types = ['rifle', 'mg', 'sapper', 'shield', 'bugler', 'medic', 'rifle', 'sapper', 'mg'];
       for (const t of types) if (G.armyCost(army.map((type) => ({ type }))) + D.units[t].cost <= cap) army.push(t);
       G.startRun(chId, 0, army, 'okafor');
       await done;

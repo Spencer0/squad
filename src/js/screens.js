@@ -96,15 +96,13 @@ G.showHowTo = () => G.openModal((card) => {
     G.el('h2', { text: 'How to play' }),
     G.el('div', { class: 'howto' },
       ...[
-        ['Goal', 'Each chapter is a continent. Move city to city across the map and take the capital at the end. If your whole army is wiped out, the chapter restarts.'],
-        ['Battles', 'Battles run in real time. Your squads fire on their own. AP builds up over time and from kills: tap a squad\'s card to cast its ability. Tap an enemy to focus all fire on it. Space pauses.'],
-        ['Counters', 'Rifles beat Recon. Recon (snipers) beats Support. Support (MGs, grenadiers, mortars) beats Infantry. Sappers beat Armor. Armor beats Infantry and Support. Check the intel before each fight and deploy the right squads.'],
-        ['Rows', 'Front-row squads shield the back row. Snipers and enemy scouts and mortars can hit the back row anyway.'],
-        ['Break', 'Damage fills the gold Break bar on tough enemies. When it fills they are stunned, take 50% more damage, and any big attack they are winding up is interrupted.'],
-        ['Veterancy', 'Squads earn XP in every fight and rank up to Veteran, Elite and Legendary for more HP and damage. A wiped squad comes back at low HP and drops a rank. Ranks reset when the chapter ends.'],
-        ['Heroes', 'Bring one hero. Heroes keep their level forever and unlock perks at levels 3, 6 and 9.'],
-        ['Army cap', 'Each squad costs cap points. Your cap grows with every continent you clear and with Logistics at the Command Post.'],
-        ['Boons', 'After fights you pick 1 of 3 boons. Doctrines you already hold show up more often. The build is wiped when the chapter ends.'],
+        ['Map', 'Move city to city. Take the capital to win the continent.'],
+        ['Battle', 'Squads fight on their own. Tap a card to spend AP on its ability. Tap an enemy to focus fire. Space pauses.'],
+        ['Counters', 'Rifles > Recon > Support > Infantry. Sappers > Armor > Infantry and Support.'],
+        ['Rows', 'The front row protects the back row. Snipers, scouts, mortars and mages can reach it anyway.'],
+        ['Break', 'Fill the gold bar to stun an enemy and cancel its big attack.'],
+        ['Ranks', 'Squads rank up during a run. Heroes keep their levels forever.'],
+        ['Cap', 'Squads cost cap points. Clearing continents raises the cap.'],
       ].map(([a, b]) => G.el('div', {}, G.el('b', { text: a }), G.el('p', { text: b })))
     ),
     G.el('div', { class: 'modal-actions' }, G.el('button', { class: 'btn primary', type: 'button', onclick: G.closeModal }, 'Got it'))
@@ -199,10 +197,7 @@ G.showBase = () => {
   if (!G.meta.seenTips.base) {
     G.meta.seenTips.base = true;
     G.saveAll();
-    G.dialog([
-      { who: 'radio', text: 'Welcome to the forward base, Able Company. This farm is home between operations.' },
-      { who: 'radio', text: 'Spend meta-points at the stations. When you are ready, head to the Radio Tent and pick a continent.' },
-    ]);
+    G.toast('Spend points at the stations. Deploy from the Radio Tent.', 3500);
   }
 };
 
@@ -213,7 +208,7 @@ G.heroRow = (id) => {
   return G.el('div', { class: 'row hero-row' },
     G.el('h4', {}, G.el('img', { src: G.art.figPortrait(h.figure, 64), alt: '', class: 'row-portrait' }), h.name, G.el('span', { class: 'tag', text: G.heroUnlocked(id) ? `Level ${lvl}` : 'Locked' })),
     G.el('span', { class: 'muted small', text: next ? `${xp}/${next} XP` : 'Max level' }),
-    G.el('p', { text: `${h.title}. ${h.blurb} ${h.ability.name}: ${h.ability.text}` }),
+    G.el('p', { text: `${h.blurb} ${h.ability.name}: ${h.ability.text}` }),
     G.el('p', { class: 'perks', text: perks }));
 };
 
@@ -263,7 +258,7 @@ G.showTrack = (tracks, title, heroes) => G.openModal((card) => {
 // ---------- mission select ----------
 G.chapterUnlocked = (ch) => !ch.unlockAfter || G.meta.cleared[ch.unlockAfter];
 G.showRadio = () => G.openModal((card) => {
-  card.append(G.el('h2', { text: 'Radio Tent' }), G.el('p', { class: 'muted', text: `Pick a continent. Your army cap is ${G.armyCap()}. Cleared continents can be replayed at higher Heat for more points.` }));
+  card.append(G.el('h2', { text: 'Radio Tent' }), G.el('p', { class: 'muted', text: `Army cap ${G.armyCap()}` }));
   const list = G.el('div', { class: 'chapters' });
   for (const ch of D.chapters) {
     const unlocked = G.chapterUnlocked(ch);
@@ -299,7 +294,7 @@ G.strongVs = (dmgType) => Object.entries(D.config.counters[dmgType] || {}).filte
 G.unitChip = (type) => {
   const d = D.units[type];
   const sv = G.strongVs(d.dmgType);
-  return `${G.roleName(d.role)} · ${sv.length ? `strong vs ${sv.join(', ')}` : G.dmgName(d.dmgType)}`;
+  return `${G.roleName(d.role)} · ${sv.length ? `strong vs ${sv.join(', ')}` : d.blurb}`;
 };
 
 // pick a hero and an army within the cap
@@ -312,7 +307,7 @@ G.showMuster = (ch, heat) => G.openModal((card) => {
   const cost = () => army.reduce((s, t) => s + D.units[t].cost, 0);
   const render = () => {
     card.innerHTML = '';
-    card.append(G.el('h2', { text: `Muster for ${ch.place}` }), G.el('p', { class: 'muted', text: `Choose a hero, then fill your army up to the cap. Army cap: ${cost()} / ${cap} used.` }));
+    card.append(G.el('h2', { text: `Muster for ${ch.place}` }), G.el('p', { class: 'muted', text: `Cap ${cost()} / ${cap}` }));
     card.append(G.el('h3', { text: 'Hero' }));
     const hg = G.el('div', { class: 'picker' });
     for (const id of heroes) {
@@ -338,7 +333,7 @@ G.showMuster = (ch, heat) => G.openModal((card) => {
       rows.append(G.el('div', { class: `row unit-row ${ok ? '' : 'locked'}` },
         G.el('h4', {}, G.el('img', { src: G.art.figPortrait(d.figure, 64), alt: '', class: 'row-portrait' }), d.name, G.el('span', { class: 'tag', text: `cost ${d.cost}` }), n ? G.el('span', { class: 'tag on', text: `x${n}` }) : null),
         G.el('div', { class: 'stepper' }, minus, plus),
-        G.el('p', { text: ok ? `${G.unitChip(type)}. ${d.ability.name}: ${d.ability.text}` : 'Unlock at the Barracks.' })));
+        G.el('p', { text: ok ? `${d.blurb} ${d.ability.name}: ${d.ability.text}` : 'Unlock at the Barracks.' })));
     }
     card.append(rows);
     const go = G.el('button', { class: 'btn primary', type: 'button', disabled: !army.length || undefined }, 'Deploy');
@@ -523,7 +518,6 @@ G.camp = () => {
     card.append(
       G.el('span', { class: 'eyebrow', text: 'Field camp' }),
       G.el('h2', { text: 'Dig in for the night' }),
-      G.el('p', { text: 'A quiet place outside the city. You have time for one thing before dawn.' }),
       G.el('div', { class: 'rows' },
         G.el('div', { class: 'row' }, G.el('h4', { text: 'Rest' }), G.el('button', { class: 'btn primary small', type: 'button', onclick: () => done('rest') }, 'Rest'), G.el('p', { text: `Every squad heals ${G.pct(heal)} of max HP, wiped squads included.` })),
         G.el('div', { class: 'row' }, G.el('h4', { text: 'Drill' }), G.el('button', { class: 'btn small', type: 'button', onclick: () => done('drill') }, 'Drill'), G.el('p', { text: `Every squad gains ${xp} XP toward its next rank.` }))));
@@ -539,7 +533,6 @@ G.cache = () => G.ask((card, done) => {
   card.append(
     G.el('span', { class: 'eyebrow', text: 'Cache' }),
     G.el('h2', { text: 'A buried supply cache' }),
-    G.el('p', { text: 'Someone stashed this in a hurry. Take the good stuff or strip it for parts.' }),
     G.el('div', { class: 'rows' },
       G.el('div', { class: 'row' }, G.el('h4', { text: 'Open the crate' }), G.el('button', { class: 'btn primary small', type: 'button', onclick: () => done('draft') }, 'Open'), G.el('p', { text: 'A boon draft with a guaranteed Rare.' })),
       relic ? G.el('div', { class: 'row' }, G.el('h4', { text: 'Take the relic' }), G.el('button', { class: 'btn small', type: 'button', onclick: () => done('relic') }, 'Take'), G.el('p', { text: 'A random Captured Relic boon.' })) : null,
@@ -591,7 +584,7 @@ G.showResults = (r) => G.ask((card, done) => {
   card.append(
     G.el('span', { class: 'eyebrow', text: r.win ? 'Operation complete' : 'Army lost' }),
     G.el('h2', { text: r.win ? `${ch.place} liberated` : `${ch.name} failed` }),
-    G.el('p', { text: r.win ? 'Your army and build are disbanded. Meta-points are banked at base and your hero keeps their levels.' : `The chapter resets. You still bank ${G.pct(D.config.rewards.deathBankPct)} of the points this run earned, and your hero keeps their XP.` }));
+    G.el('p', { text: r.win ? 'Army and boons reset. Points and hero levels are kept.' : `You keep ${G.pct(D.config.rewards.deathBankPct)} of this run's points and your hero's XP.` }));
   const grid = G.el('div', { class: 'results-grid' });
   r.lines.forEach(([a, b]) => grid.append(G.el('span', { text: a }), G.el('span', { text: b })));
   grid.append(G.el('span', { class: 'total', text: 'Meta-points banked' }), G.el('span', { class: 'total', text: `+${r.total}` }));

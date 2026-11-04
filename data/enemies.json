@@ -269,5 +269,155 @@
         "target": "single"
       }
     ]
+  },
+  "werewolf": {
+    "name": "Lantern Wolves",
+    "figure": "e_werewolf",
+    "count": 2,
+    "role": "infantry",
+    "dmgType": "melee",
+    "row": "front",
+    "occult": true,
+    "fantasy": true,
+    "hp": 170,
+    "dmg": 9,
+    "rate": 1.0,
+    "regen": 0.015,
+    "break": 100,
+    "abilities": [
+      {
+        "name": "Pounce",
+        "cast": 0.9,
+        "cd": 7,
+        "dmg": 36,
+        "target": "single"
+      }
+    ]
+  },
+  "magus": {
+    "name": "Lantern Magus",
+    "figure": "e_magus",
+    "count": 1,
+    "role": "support",
+    "dmgType": "blast",
+    "row": "back",
+    "flanker": true,
+    "occult": true,
+    "fantasy": true,
+    "hp": 120,
+    "dmg": 7,
+    "rate": 2.2,
+    "lob": true,
+    "spell": true,
+    "break": 80,
+    "abilities": [
+      {
+        "name": "Fireball",
+        "cast": 2.0,
+        "cd": 10,
+        "dmg": 22,
+        "target": "all",
+        "burn": 2,
+        "fx": "fire"
+      },
+      {
+        "name": "Lantern Ward",
+        "cast": 1.6,
+        "cd": 13,
+        "shieldAllPct": 0.2,
+        "fx": "ward"
+      }
+    ]
+  },
+  "dwarf": {
+    "name": "Ironbeard Dwarves",
+    "figure": "e_dwarf",
+    "count": 3,
+    "role": "armor",
+    "dmgType": "cannon",
+    "row": "front",
+    "fantasy": true,
+    "hp": 150,
+    "dmg": 7,
+    "rate": 2.0,
+    "break": 110,
+    "abilities": [
+      {
+        "name": "Powder Keg",
+        "cast": 1.8,
+        "cd": 12,
+        "dmg": 26,
+        "target": "front"
+      }
+    ]
+  },
+  "elf": {
+    "name": "Elven Rangers",
+    "figure": "e_elf",
+    "count": 3,
+    "role": "recon",
+    "dmgType": "precision",
+    "row": "back",
+    "flanker": true,
+    "fantasy": true,
+    "hp": 70,
+    "dmg": 7,
+    "rate": 1.2,
+    "arrow": true,
+    "abilities": [
+      {
+        "name": "Arrow Storm",
+        "cast": 1.5,
+        "cd": 11,
+        "dmg": 14,
+        "target": "all"
+      }
+    ]
+  },
+  "priest": {
+    "name": "Grave Priest",
+    "figure": "e_priest",
+    "count": 1,
+    "role": "support",
+    "dmgType": "blast",
+    "row": "back",
+    "occult": true,
+    "fantasy": true,
+    "hp": 110,
+    "dmg": 5,
+    "rate": 2.0,
+    "spell": true,
+    "break": 70,
+    "abilities": [
+      {
+        "name": "Raise the Dead",
+        "cast": 2.2,
+        "cd": 14,
+        "summon": "ghoul",
+        "fx": "summon"
+      },
+      {
+        "name": "Wither",
+        "cast": 1.6,
+        "cd": 11,
+        "slowAll": 4,
+        "dmg": 10,
+        "target": "all",
+        "fx": "hex"
+      }
+    ]
+  },
+  "ghoul": {
+    "name": "Ghouls",
+    "figure": "e_ghoul",
+    "count": 4,
+    "role": "infantry",
+    "dmgType": "melee",
+    "row": "front",
+    "occult": true,
+    "fantasy": true,
+    "hp": 60,
+    "dmg": 4,
+    "rate": 1.1
   }
 }

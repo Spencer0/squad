@@ -181,13 +181,17 @@ G.battle = (() => {
   const outMult = (u) => (u.count > 1 && !u.vehicle ? 0.35 + 0.65 * (u.hp / u.maxHp) : 1);
   const alive = (side) => (side === 'ally' ? B.allies : B.enemies).filter((u) => !u.dead);
   const foesOf = (u) => alive(u.side === 'ally' ? 'enemy' : 'ally');
+  const allyAura = () => B.allies.reduce((m, a) => (!a.dead && a.def.aura ? Math.max(m, a.def.aura) : m), 0);
   const officerAura = () => (B.enemies.some((e) => !e.dead && e.def.aura) ? Math.max(...B.enemies.filter((e) => !e.dead && e.def.aura).map((e) => e.def.aura)) : 0);
 
   function pickTarget(u) {
     let foes = foesOf(u);
     if (!foes.length) return null;
     if (u.side === 'ally' && B.focus && !B.focus.dead) return B.focus;
-    if (!u.flanker) { const front = foes.filter((f) => f.row === 'front'); if (front.length) foes = front; }
+    if (!u.flanker) {
+      const front = foes.filter((f) => f.row === 'front'); if (front.length) foes = front;
+      const taunt = foes.filter((f) => f.def.taunt); if (taunt.length) return taunt.sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+    }
     let best = -1, pool = [];
     for (const f of foes) {
       const m = counter(u.dmgType, f.role) + (u.side === 'enemy' ? Math.random() * 0.3 : 0);
@@ -244,6 +248,7 @@ G.battle = (() => {
   }
   function damage(src, t, dmg, opts = {}) {
     if (t.dead || dmg <= 0) return;
+    if (t.def.armor) dmg *= 1 - t.def.armor;
     if (t.side === 'ally') {
       dmg *= 1 + G.mod('passive', 'dmgTakenPct') + (t.row === 'front' ? G.mod('passive', 'frontDmgTakenPct') : 0);
       if (B.smokeUntil > B.t) dmg *= 1 - C().smokeReduce;
@@ -275,7 +280,7 @@ G.battle = (() => {
   function hitRoll(u, t, base, opts = {}) {
     let dmgPct = 0, crit = false;
     if (u.side === 'ally') {
-      dmgPct = G.mod('passive', 'dmgPct') + (opts.skillDmgPct || 0) + (opts.spread ? G.mod('passive', 'blastDmgPct') : 0) + (t.role === 'armor' ? G.mod('passive', 'armorDmgPct') : 0) + vetBonus(u) + (opts.volleyBonus || 0);
+      dmgPct = allyAura() + G.mod('passive', 'dmgPct') + (opts.skillDmgPct || 0) + (opts.spread ? G.mod('passive', 'blastDmgPct') : 0) + (t.role === 'armor' ? G.mod('passive', 'armorDmgPct') : 0) + vetBonus(u) + (opts.volleyBonus || 0);
       if (Math.random() < C().baseCrit + G.mod('passive', 'critPct')) crit = true;
     } else dmgPct = officerAura();
     let dmg = base * counter(u.dmgType, t.role) * (1 + dmgPct) * (u.side === 'enemy' ? u.atkM : C().allyDmgScale);
@@ -292,6 +297,11 @@ G.battle = (() => {
   }
   function doAttack(u) {
     const def = u.def;
+    if (def.dmgType === 'heal' && !def.heal) {
+      setAttackPose(u);
+      if (u.side === 'ally') for (let i = 0; i < 3; i++) floater(u.x + G.ri(-30, 40), u.y - 95 - i * 8, '♪', '#f0c75a', 18);
+      return;
+    }
     if (def.dmgType === 'heal') {
       const pool = alive('ally').filter((a) => a.hp < a.maxHp - 1).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp);
       if (!pool.length) return;
@@ -332,8 +342,10 @@ G.battle = (() => {
     } else {
       const c = center(t);
       const n = Math.min(3, u.figs.filter((f) => !f.dead).length || 1);
-      for (let i = 0; i < n; i++) { const mm = muzzleOf(u); tracer(mm.x, mm.y, c.x + G.ri(-24, 24), c.y + G.ri(-20, 20), u.side === 'enemy' && u.occult ? '#6dffb4' : '#fff3b0'); }
-      G.sfx(u.dmgType === 'blast' || u.dmgType === 'cannon' ? 'mg' : 'shot');
+      const col = def.arrow ? '#8a6a3a' : u.side === 'enemy' && u.occult ? '#6dffb4' : '#fff3b0';
+      for (let i = 0; i < n; i++) { const mm = muzzleOf(u); tracer(mm.x, mm.y, c.x + G.ri(-24, 24), c.y + G.ri(-20, 20), col); }
+      if (def.dmgType === 'melee') burst(c.x, c.y, 5, u.occult ? ['#6dffb4', '#2b2a33'] : ['#8a2f24', '#333'], 2.5, 400);
+      else G.sfx(def.arrow ? 'click' : u.dmgType === 'blast' || u.dmgType === 'cannon' ? 'mg' : 'shot');
       if (u.dmgType === 'cannon') explosion(c.x, c.y, 0.45);
       resolve();
     }
@@ -358,7 +370,7 @@ G.battle = (() => {
     const hasteAll = (a.hasteAll || 0) + sk('hasteAll');
     if (hasteAll) alive('ally').forEach((x) => (x.hasteUntil = Math.max(x.hasteUntil, B.t + hasteAll)));
     const shieldAll = (a.shieldAllPct || 0) + sk('shieldAllPct');
-    if (shieldAll) alive('ally').forEach((x) => shieldU(x, shieldAll));
+    if (shieldAll) alive('ally').filter((x) => !a.frontOnly || x.row === 'front').forEach((x) => { shieldU(x, shieldAll); if (a.frontOnly) burst(center(x).x, center(x).y, 6, ['#d8e6ff', '#9fb6d8'], 2); });
     if (a.healAllPct) { alive('ally').forEach((x) => { heal(x, x.maxHp * a.healAllPct * healPower()); burst(center(x).x, center(x).y, 8, ['#9cc95e', '#e7f5c8'], 2.5); }); G.sfx('heal'); }
     if (a.blastDmg) {
       alive('enemy').forEach((e) => {
@@ -413,6 +425,18 @@ G.battle = (() => {
     e.cast = null;
     setAttackPose(e);
     if (a.healAllPct) { alive('enemy').forEach((x) => { x.hp = Math.min(x.maxHp, x.hp + x.maxHp * a.healAllPct); syncFigs(x); floater(center(x).x, center(x).y - 50, 'Rallied', '#9cc95e', 18); }); return; }
+    if (a.shieldAllPct) { alive('enemy').forEach((x) => { shieldU(x, a.shieldAllPct); burst(center(x).x, center(x).y, 10, ['#6dffb4', '#c8ffe6'], 2.5, 700); }); G.sfx('occult'); return; }
+    if (a.summon && alive('enemy').length < 6) {
+      const spot = [[560, 545], [600, 470], [600, 610], [520, 500]].find(([x, y]) => !alive('enemy').some((o) => Math.hypot(o.x - x, o.y - y) < 60)) || [560, 545];
+      const n = mkEnemy(a.summon, B.tier);
+      n.x = spot[0]; n.y = spot[1]; n.figs.forEach((f) => (f.rise = B.t));
+      B.enemies.push(n);
+      burst(n.x, n.y - 40, 26, ['#6dffb4', '#2b2a33', '#c8ffe6'], 3.5, 900);
+      floater(n.x, n.y - 110, 'The dead rise', '#6dffb4', 20);
+      G.sfx('occult');
+      return;
+    }
+    if (a.slowAll) alive('ally').forEach((x) => { x.slowUntil = B.t + a.slowAll; burst(center(x).x, center(x).y, 6, ['#a36dff', '#3a1d55'], 2, 700); });
     let targets = alive('ally');
     if (a.target === 'front') { const fr = targets.filter((t) => t.row === 'front'); if (fr.length) targets = fr; }
     if (a.target === 'single') targets = [pickTarget(e)].filter(Boolean);
@@ -420,7 +444,10 @@ G.battle = (() => {
     targets.forEach((t) => {
       const c = center(t);
       if (a.target === 'single') { tracer(m.x, m.y, c.x, c.y, e.occult ? '#6dffb4' : '#ffd9a0'); explosion(c.x, c.y, 0.9); }
+      else if (a.fx === 'fire') { explosion(c.x, c.y, 0.7); burst(c.x, c.y, 10, ['#ff7a2a', '#ffd08a'], 4); }
+      else if (a.fx === 'hex') burst(c.x, c.y, 8, ['#a36dff', '#6dffb4'], 3);
       else explosion(c.x, c.y, 0.6);
+      if (!a.dmg) return;
       const h = hitRoll(e, t, a.dmg * C().enemyCastScale, {});
       damage(e, t, h.dmg, { big: true });
       if (a.burn) applyBurn(t, a.burn);
@@ -450,6 +477,7 @@ G.battle = (() => {
       if (u.ability.cdLeft > 0) u.ability.cdLeft -= dt;
     }
     if (u.side === 'enemy') {
+      if (u.def.regen && u.hp < u.maxHp) { u.hp = Math.min(u.maxHp, u.hp + u.maxHp * u.def.regen * dt); syncFigs(u); }
       if (u.brokenUntil > B.t) return;
       if (u.cast) { u.cast.t += dt; if (u.cast.t >= u.cast.dur) resolveCast(u); return; }
       for (const ab of u.abilities) {
@@ -720,7 +748,7 @@ G.battle = (() => {
     B = {
       allies: [...army.map((sq) => mkAlly(sq, false)), ...(G.run.hero ? [mkAlly(G.run.hero, true)] : [])].filter((u) => !u.dead || true),
       enemies: spec.enemies.map((k) => mkEnemy(k, spec.tier || 0)),
-      t: 0, ap: Math.min(C().apMax, C().apStart + G.mod('passive', 'startAp')), focus: null, over: false, paused: false, speedMult: G.settings.fast ? 2 : 1,
+      tier: spec.tier || 0, t: 0, ap: Math.min(C().apMax, C().apStart + G.mod('passive', 'startAp')), focus: null, over: false, paused: false, speedMult: G.settings.fast ? 2 : 1,
       bg: G.art.backdrop(spec.bg), bgKey: spec.bg || '', occult: spec.enemies.some((k) => D.enemies[k].occult), smokeUntil: 0,
     };
     // squads that start wiped sit out the fight
@@ -730,7 +758,7 @@ G.battle = (() => {
     const boss = B.enemies.find((e) => e.boss);
     banner(boss ? boss.name : spec.title || 'Contact!', !!boss);
     runHook('battleStart', null, null);
-    if (!G.meta.seenTips.rt && !G.testMode) { G.meta.seenTips.rt = true; G.toast('Your squads fire on their own. Spend AP on ability cards. Tap an enemy to focus fire.', 5200); }
+    if (!G.meta.seenTips.rt && !G.testMode) { G.meta.seenTips.rt = true; G.toast('Tap a card to cast. Tap an enemy to focus fire.', 3500); }
     last = G.now();
     if (!rafId) rafId = requestAnimationFrame(frame);
     G._resizeStage && G._resizeStage();

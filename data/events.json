@@ -2,7 +2,7 @@
  {
   "id": "farmer",
   "title": "The Farmer's Back Road",
-  "text": "An old farmer waves you into his barn. He says he knows a sunken lane the Vossmark patrols never use.",
+  "text": "A farmer knows a back road.",
   "choices": [
    {
     "label": "Follow him",
@@ -35,7 +35,7 @@
  {
   "id": "pilot",
   "title": "Downed Pilot",
-  "text": "A fighter pilot is hanging from a tree by his parachute, one leg broken. Vossmark voices are getting closer.",
+  "text": "A downed pilot, leg broken.",
   "choices": [
    {
     "label": "Carry him out",
@@ -64,7 +64,7 @@
  {
   "id": "hospital",
   "title": "Abandoned Field Hospital",
-  "text": "A shelled aid station, tents half collapsed. Some of the supply crates are still sealed.",
+  "text": "An abandoned aid station.",
   "choices": [
    {
     "label": "Raid the supplies",
@@ -86,7 +86,7 @@
  {
   "id": "signal",
   "title": "Strange Radio Signal",
-  "text": "Your radio picks up chanting under the static. It's coming from a cellar a few hundred metres off the route.",
+  "text": "Chanting on the radio, from a nearby cellar.",
   "occult": true,
   "choices": [
    {
@@ -109,7 +109,7 @@
  {
   "id": "crate",
   "title": "The Glowing Crate",
-  "text": "A Vossmark crate stamped with a lantern sigil. It is warm to the touch and faintly green at the seams.",
+  "text": "A warm crate, glowing green at the seams.",
   "occult": true,
   "choices": [
    {
@@ -131,7 +131,7 @@
  {
   "id": "mixup",
   "title": "Supply Mix-up",
-  "text": "A lost supply truck from another division offers to swap crates with you. Their manifest is smudged.",
+  "text": "A lost supply truck wants to swap crates.",
   "choices": [
    {
     "label": "Swap crates",
@@ -156,7 +156,7 @@
  {
   "id": "prisoner",
   "title": "Wounded Prisoner",
-  "text": "A Vossmark private surrenders, bleeding. He keeps glancing at the tree line.",
+  "text": "A wounded Vossmark private surrenders.",
   "choices": [
    {
     "label": "Interrogate him",
@@ -178,7 +178,7 @@
  {
   "id": "volunteers",
   "title": "Volunteers",
-  "text": "A resistance cell has been holding this town on its own. Their leader asks to join you, or at least to share what they know.",
+  "text": "Resistance fighters offer help.",
   "choices": [
    {
     "label": "Take them in",
@@ -199,7 +199,7 @@
  {
   "id": "depot",
   "title": "Abandoned Motor Pool",
-  "text": "A Vossmark motor pool, abandoned in a hurry. Fuel drums, crates, and an armored car with a cracked engine block.",
+  "text": "An abandoned Vossmark motor pool.",
   "choices": [
    {
     "label": "Booby-trap the car and move on",

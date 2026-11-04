@@ -1,23 +1,133 @@
 {
   "okafor": {
-    "name": "Sgt. Okafor", "title": "The Old Man of Able Company", "figure": "veteran", "role": "infantry", "dmgType": "rifle", "row": "front",
-    "hp": 220, "dmg": 13, "rate": 1.1, "unlock": null,
-    "blurb": "Front-line commander. Hits hard and rallies the army.",
-    "ability": { "id": "rally", "name": "Rally", "ap": 3, "cd": 14, "hasteAll": 5, "shieldAllPct": 0.1, "text": "Every squad fires twice as fast for 5 seconds and gains a 10% shield." },
-    "perks": { "3": { "text": "+1 AP when Rally is cast", "cast": { "ap": 1 } }, "6": { "text": "Army takes 8% less damage", "passive": { "dmgTakenPct": -0.08 } }, "9": { "text": "Rally lasts 3 seconds longer", "skills": { "rally": { "hasteAll": 3 } } } }
+    "name": "Sgt. Okafor",
+    "title": "Veteran",
+    "figure": "veteran",
+    "role": "infantry",
+    "dmgType": "rifle",
+    "row": "front",
+    "hp": 220,
+    "dmg": 13,
+    "rate": 1.1,
+    "unlock": null,
+    "blurb": "Front-line commander.",
+    "ability": {
+      "id": "rally",
+      "name": "Rally",
+      "ap": 3,
+      "cd": 14,
+      "hasteAll": 5,
+      "shieldAllPct": 0.1,
+      "text": "Army fires twice as fast for 5s and gains a 10% shield."
+    },
+    "perks": {
+      "3": {
+        "text": "+1 AP when Rally is cast",
+        "cast": {
+          "ap": 1
+        }
+      },
+      "6": {
+        "text": "Army takes 8% less damage",
+        "passive": {
+          "dmgTakenPct": -0.08
+        }
+      },
+      "9": {
+        "text": "Rally lasts 3 seconds longer",
+        "skills": {
+          "rally": {
+            "hasteAll": 3
+          }
+        }
+      }
+    }
   },
   "halloran": {
-    "name": "Doc Halloran", "title": "Best medic in the division", "figure": "medic", "role": "support", "dmgType": "heal", "row": "back",
-    "hp": 170, "heal": 12, "rate": 1.6, "unlock": "hero_doc",
-    "blurb": "Keeps everyone alive. Her heals also restore fallen soldiers.",
-    "ability": { "id": "miracle", "name": "Miracle Worker", "ap": 5, "cd": 20, "healAllPct": 0.45, "text": "Heals every squad 45%, including squads that were nearly wiped." },
-    "perks": { "3": { "text": "Healing is 20% stronger", "passive": { "healPowerPct": 0.2 } }, "6": { "text": "Battles start with a 10% shield on every squad", "battleStart": { "shieldAllPct": 0.1 } }, "9": { "text": "Miracle Worker costs 1 less AP", "skills": { "miracle": { "apCost": -1 } } } }
+    "name": "Doc Halloran",
+    "title": "Field surgeon",
+    "figure": "medic",
+    "role": "support",
+    "dmgType": "heal",
+    "row": "back",
+    "hp": 170,
+    "heal": 12,
+    "rate": 1.6,
+    "unlock": "hero_doc",
+    "blurb": "Strong heals.",
+    "ability": {
+      "id": "miracle",
+      "name": "Miracle Worker",
+      "ap": 5,
+      "cd": 20,
+      "healAllPct": 0.45,
+      "text": "Heals every squad 45%."
+    },
+    "perks": {
+      "3": {
+        "text": "Healing is 20% stronger",
+        "passive": {
+          "healPowerPct": 0.2
+        }
+      },
+      "6": {
+        "text": "Battles start with a 10% shield on every squad",
+        "battleStart": {
+          "shieldAllPct": 0.1
+        }
+      },
+      "9": {
+        "text": "Miracle Worker costs 1 less AP",
+        "skills": {
+          "miracle": {
+            "apCost": -1
+          }
+        }
+      }
+    }
   },
   "ghost": {
-    "name": "Lt. Vasquez \"Ghost\"", "title": "Nobody has seen her face", "figure": "sniper", "role": "recon", "dmgType": "precision", "row": "back",
-    "hp": 150, "dmg": 34, "rate": 2.3, "unlock": "hero_ghost",
-    "blurb": "Deletes key targets and breaks bosses.",
-    "ability": { "id": "oneshot", "name": "One Shot", "ap": 4, "cd": 12, "nuke": 180, "breakDmg": 200, "text": "180 damage and massive Break to the focused target." },
-    "perks": { "3": { "text": "+10% crit chance", "passive": { "critPct": 0.1 } }, "6": { "text": "Kills grant 1 AP", "kill": { "ap": 1 } }, "9": { "text": "One Shot cooldown -4s", "skills": { "oneshot": { "cd": -4 } } } }
+    "name": "Lt. Vasquez \"Ghost\"",
+    "title": "Sniper",
+    "figure": "sniper",
+    "role": "recon",
+    "dmgType": "precision",
+    "row": "back",
+    "hp": 150,
+    "dmg": 34,
+    "rate": 2.3,
+    "unlock": "hero_ghost",
+    "blurb": "Deletes key targets.",
+    "ability": {
+      "id": "oneshot",
+      "name": "One Shot",
+      "ap": 4,
+      "cd": 12,
+      "nuke": 180,
+      "breakDmg": 200,
+      "text": "Huge hit and Break on the focus target."
+    },
+    "perks": {
+      "3": {
+        "text": "+10% crit chance",
+        "passive": {
+          "critPct": 0.1
+        }
+      },
+      "6": {
+        "text": "Kills grant 1 AP",
+        "kill": {
+          "ap": 1
+        }
+      },
+      "9": {
+        "text": "One Shot cooldown -4s",
+        "skills": {
+          "oneshot": {
+            "cd": -4
+          }
+        }
+      }
+    }
   }
 }

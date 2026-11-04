@@ -3,7 +3,7 @@
     "id": "na",
     "name": "Operation Liberty",
     "place": "North America",
-    "blurb": "The Vossmark landed on the east coast and hold New York. Push east from Denver and take it back.",
+    "blurb": "Denver to New York.",
     "recCap": 6,
     "scale": 1.0,
     "tierScale": 0.07,
@@ -50,13 +50,16 @@
           "rifle"
         ],
         [
-          "grenadier",
-          "mortar",
+          "werewolf",
           "rifle"
         ],
         [
-          "ski",
-          "ski",
+          "priest",
+          "rifle"
+        ],
+        [
+          "grenadier",
+          "mortar",
           "rifle"
         ]
       ],
@@ -67,7 +70,12 @@
           "grenadier"
         ],
         [
-          "shock",
+          "werewolf",
+          "werewolf"
+        ],
+        [
+          "magus",
+          "rifle",
           "rifle"
         ],
         [
@@ -90,37 +98,25 @@
       "start": [
         {
           "who": "radio",
-          "text": "Able Company, this is Hearth. The Vossmark hold the whole eastern seaboard. You're the spearhead out of Denver."
-        },
-        {
-          "who": "radio",
-          "text": "Recon keeps reporting a tank in New York that shrugs off bazookas. Some say it glows. Probably nerves."
-        },
-        {
-          "who": "hero",
-          "text": "Copy, Hearth. Probably nerves."
+          "text": "Push east from Denver. Take back New York."
         }
       ],
       "mid": [
         {
           "who": "radio",
-          "text": "Pittsburgh is a fortress. There's an MG bunker covering the river crossings. Bring sappers if you have them."
+          "text": "Pittsburgh has a bunker. Bring sappers."
         }
       ],
       "end": [
         {
-          "who": "hero",
-          "text": "That's it. That's the tank. Look at the hull."
-        },
-        {
           "who": "radio",
-          "text": "Those marks are not paint. Whatever the Lantern Bureau did to it, put it down. It's armor, so hit it with charges."
+          "text": "That tank glows. Hit it with charges."
         }
       ],
       "win": [
         {
           "who": "radio",
-          "text": "New York is free. Ships are waiting to take you across the Atlantic. Europe is next."
+          "text": "New York is free. Europe is next."
         }
       ]
     }
@@ -129,7 +125,7 @@
     "id": "eu",
     "name": "Operation Hedgerow",
     "place": "Europe",
-    "blurb": "Land at Cherbourg and fight through the bocage to the Lantern Bureau's foundry at Cologne.",
+    "blurb": "Cherbourg to Cologne.",
     "recCap": 8,
     "scale": 1.2,
     "tierScale": 0.07,
@@ -149,8 +145,12 @@
           "grenadier"
         ],
         [
-          "rifle",
-          "mortar"
+          "elf",
+          "rifle"
+        ],
+        [
+          "dwarf",
+          "rifle"
         ],
         [
           "ski",
@@ -164,42 +164,52 @@
       ],
       "late": [
         [
-          "rifle",
-          "grenadier",
+          "dwarf",
+          "dwarf",
           "mortar"
+        ],
+        [
+          "elf",
+          "elf",
+          "rifle"
         ],
         [
           "armoredcar",
           "rifle",
+          "elf"
+        ],
+        [
+          "magus",
+          "dwarf",
           "rifle"
+        ],
+        [
+          "priest",
+          "werewolf"
         ],
         [
           "tank",
           "rifle"
-        ],
-        [
-          "flamer",
-          "flamer",
-          "ski"
-        ],
-        [
-          "officer",
-          "rifle",
-          "mortar"
         ]
       ],
       "elite": [
         [
           "shock",
-          "officer"
+          "magus"
         ],
         [
-          "tank",
-          "grenadier"
+          "dwarf",
+          "tank"
         ],
         [
-          "shock",
-          "shock"
+          "werewolf",
+          "werewolf",
+          "elf"
+        ],
+        [
+          "magus",
+          "priest",
+          "rifle"
         ]
       ],
       "miniboss": [
@@ -217,33 +227,25 @@
       "start": [
         {
           "who": "radio",
-          "text": "Welcome to France, Able. That relic tank had a twin. Intelligence traced its maker to a foundry in Cologne."
-        },
-        {
-          "who": "hero",
-          "text": "Then we go to Cologne."
+          "text": "Fight from Cherbourg to the foundry at Cologne."
         }
       ],
       "mid": [
         {
           "who": "radio",
-          "text": "A tank is holding Reims. Break it and the road east is open."
+          "text": "A tank holds Reims."
         }
       ],
       "end": [
         {
-          "who": "hero",
-          "text": "Hearth, the foundry is empty. Something walked out of it."
-        },
-        {
           "who": "radio",
-          "text": "Then it's out in the open. Light it up, Able."
+          "text": "Something walked out of the foundry. Take it down."
         }
       ],
       "win": [
         {
           "who": "radio",
-          "text": "The foundry's dark. One last signal is coming from the far east, near Harbin. Get some rest. You're shipping out."
+          "text": "Foundry's dark. Next stop: Harbin."
         }
       ]
     }
@@ -252,7 +254,7 @@
     "id": "asia",
     "name": "Operation Frostfall",
     "place": "East Asia",
-    "blurb": "From Hong Kong's jungle hills to the frozen north. Something at Harbin answers the Lantern Bureau's radios.",
+    "blurb": "Hong Kong to Harbin.",
     "recCap": 10,
     "scale": 1.45,
     "tierScale": 0.07,
@@ -275,61 +277,62 @@
           "grenadier"
         ],
         [
-          "mortar",
+          "werewolf",
+          "ski"
+        ],
+        [
+          "priest",
           "rifle",
           "rifle"
         ],
         [
-          "flamer",
-          "flamer",
-          "rifle"
-        ],
-        [
-          "ski",
-          "ski",
-          "grenadier"
+          "elf",
+          "elf",
+          "ski"
         ]
       ],
       "late": [
         [
           "tank",
           "rifle",
-          "mortar"
+          "magus"
+        ],
+        [
+          "werewolf",
+          "werewolf",
+          "priest"
+        ],
+        [
+          "dwarf",
+          "dwarf",
+          "elf"
         ],
         [
           "shock",
-          "rifle",
+          "magus",
           "ski"
         ],
         [
           "armoredcar",
-          "armoredcar",
-          "rifle"
-        ],
-        [
-          "officer",
-          "grenadier",
-          "mortar"
-        ],
-        [
-          "flamer",
-          "tank"
+          "priest",
+          "werewolf"
         ]
       ],
       "elite": [
         [
           "shock",
           "shock",
-          "officer"
+          "magus"
+        ],
+        [
+          "werewolf",
+          "werewolf",
+          "werewolf"
         ],
         [
           "tank",
-          "tank"
-        ],
-        [
-          "shock",
-          "mortar",
-          "ski"
+          "magus",
+          "priest"
         ]
       ],
       "miniboss": [
@@ -347,33 +350,25 @@
       "start": [
         {
           "who": "radio",
-          "text": "Last stretch, Able. The relics you brought back keep humming the same note. It's coming from Harbin."
-        },
-        {
-          "who": "hero",
-          "text": "Lovely. All the way to Manchuria in January."
+          "text": "Last push. Hong Kong to Harbin."
         }
       ],
       "mid": [
         {
           "who": "radio",
-          "text": "Zhengzhou is the gate to the north. They've dug in a bunker line there."
+          "text": "Bunker line at Zhengzhou."
         }
       ],
       "end": [
         {
-          "who": "hero",
-          "text": "Hearth, the singing stopped. There's something standing in the snow."
-        },
-        {
           "who": "radio",
-          "text": "Then it can bleed. Finish this, Able."
+          "text": "Something is standing in the snow. Finish it."
         }
       ],
       "win": [
         {
           "who": "radio",
-          "text": "Signal's gone. The Lantern Bureau is finished. Come home, Able Company. You did it."
+          "text": "The Lantern Bureau is finished. Come home."
         }
       ]
     }
