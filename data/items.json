@@ -1,0 +1,6 @@
+{
+  "grenade": { "name": "Grenade", "price": 25, "text": "Blast every enemy for 26 damage and 25 Break.", "dmg": 26, "break": 25, "target": "blast" },
+  "medkit": { "name": "Med Kit", "price": 30, "text": "Heal the most wounded soldier for 40%.", "heal": 0.4, "target": "ally" },
+  "stim": { "name": "Stimulant", "price": 30, "text": "The user gains 2 AP.", "ap": 2, "target": "self" },
+  "smoke": { "name": "Smoke Grenade", "price": 35, "text": "Every soldier takes cover until their next turn.", "target": "squad" }
+}

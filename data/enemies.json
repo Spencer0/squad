@@ -1,0 +1,86 @@
+{
+  "rifleman": {
+    "name": "Vossmark Rifleman", "art": "infantry", "hp": 42, "atk": 9, "spd": 9, "break": 30,
+    "moves": [
+      { "name": "Rifle Shot", "w": 3, "hits": 1, "mult": 1.0 },
+      { "name": "Aimed Shot", "w": 1, "hits": 1, "mult": 1.5, "ringMs": 700 }
+    ]
+  },
+  "grenadier": {
+    "name": "Grenadier", "art": "grenadier", "hp": 46, "atk": 10, "spd": 7, "break": 30,
+    "moves": [
+      { "name": "Stick Grenade", "w": 2, "hits": 1, "mult": 0.8, "target": "all", "ringMs": 1100 },
+      { "name": "Rifle Shot", "w": 2, "hits": 1, "mult": 1.0 }
+    ]
+  },
+  "flamer": {
+    "name": "Flame Trooper", "art": "flamer", "hp": 60, "atk": 7, "spd": 8, "break": 40,
+    "moves": [
+      { "name": "Flame Jet", "w": 1, "hits": 3, "mult": 0.5, "burn": 1, "interval": 320 }
+    ]
+  },
+  "ski": {
+    "name": "Ski Trooper", "art": "ski", "hp": 40, "atk": 9, "spd": 13, "break": 28,
+    "moves": [
+      { "name": "Snap Shot", "w": 3, "hits": 1, "mult": 0.9, "ringMs": 650 },
+      { "name": "Double Tap", "w": 2, "hits": 2, "mult": 0.6, "interval": 280 }
+    ]
+  },
+  "mortar": {
+    "name": "Mortar Team", "art": "mortar", "hp": 55, "atk": 11, "spd": 6, "break": 35,
+    "moves": [
+      { "name": "Mortar Barrage", "w": 1, "hits": 2, "mult": 0.6, "target": "all", "ringMs": 1200, "interval": 450 }
+    ]
+  },
+  "officer": {
+    "name": "Vossmark Officer", "art": "officer", "hp": 95, "atk": 12, "spd": 10, "break": 55, "elite": true,
+    "moves": [
+      { "name": "Pistol Volley", "w": 3, "hits": 2, "mult": 0.7, "feint": 0.35, "interval": 300 },
+      { "name": "Rally the Line", "w": 1, "heal": 0.18 }
+    ]
+  },
+  "shock": {
+    "name": "Lantern Shock Trooper", "art": "shock", "hp": 170, "atk": 17, "spd": 8, "break": 90, "elite": true, "occult": true, "scale": 1.25,
+    "moves": [
+      { "name": "Crushing Blow", "w": 2, "hits": 1, "mult": 1.6, "feint": 0.6 },
+      { "name": "Frenzy", "w": 2, "hits": 3, "mult": 0.6, "feint": 0.3, "interval": 300 }
+    ]
+  },
+  "armoredcar": {
+    "name": "Armored Car", "art": "armoredcar", "hp": 220, "atk": 13, "spd": 11, "break": 100, "heavy": true,
+    "moves": [
+      { "name": "Autocannon", "w": 2, "hits": 2, "mult": 0.8, "interval": 380 },
+      { "name": "Ram", "w": 1, "hits": 1, "mult": 1.4, "feint": 0.35 }
+    ]
+  },
+  "bunker": {
+    "name": "MG Bunker", "art": "bunker", "hp": 260, "atk": 9, "spd": 6, "break": 120, "heavy": true,
+    "moves": [
+      { "name": "Sweeping Fire", "w": 2, "hits": 4, "mult": 0.45, "interval": 260 },
+      { "name": "Long Burst", "w": 1, "hits": 2, "mult": 0.5, "target": "all", "interval": 420 }
+    ]
+  },
+  "tank": {
+    "name": "Light Tank", "art": "tank", "hp": 340, "atk": 15, "spd": 6, "break": 150, "heavy": true,
+    "moves": [
+      { "name": "Main Gun", "w": 1, "hits": 1, "mult": 1.0, "target": "all", "ringMs": 1200 },
+      { "name": "Coax MG", "w": 2, "hits": 3, "mult": 0.45, "interval": 280 }
+    ]
+  },
+  "relictank": {
+    "name": "Relic Tank \"Grave Lantern\"", "art": "relictank", "hp": 620, "atk": 16, "spd": 7, "break": 200, "heavy": true, "occult": true, "boss": true,
+    "moves": [
+      { "name": "Main Gun", "w": 2, "hits": 1, "mult": 1.0, "target": "all", "ringMs": 1200 },
+      { "name": "Ghostfire Pulse", "w": 2, "hits": 3, "mult": 0.55, "burn": 1, "feint": 0.7, "interval": 340 },
+      { "name": "Coax MG", "w": 2, "hits": 4, "mult": 0.4, "interval": 250 }
+    ]
+  },
+  "horror": {
+    "name": "The Hollow Saint", "art": "horror", "hp": 800, "atk": 18, "spd": 9, "break": 250, "heavy": true, "occult": true, "boss": true,
+    "moves": [
+      { "name": "Grasping Limbs", "w": 3, "hits": 3, "mult": 0.65, "feint": 0.5, "interval": 330 },
+      { "name": "Wail", "w": 2, "hits": 1, "mult": 0.85, "target": "all", "feint": 0.4 },
+      { "name": "Devour", "w": 1, "hits": 1, "mult": 2.0, "feint": 0.85, "ringMs": 800 }
+    ]
+  }
+}

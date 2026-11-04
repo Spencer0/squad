@@ -1,0 +1,77 @@
+<title>Squad Roguelite RPG</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;600&family=Special+Elite&family=Stardos+Stencil:wght@400;700&display=swap">
+<style>/*__CSS__*/</style>
+
+<div id="app">
+  <section id="scr-title" class="screen title-screen">
+    <canvas id="title-canvas" class="title-canvas" aria-hidden="true"></canvas>
+    <div class="title-inner">
+      <p class="eyebrow">A roguelite squad RPG</p>
+      <h1 class="title-logo">SQUAD</h1>
+      <p class="title-tag">Command three soldiers through operations against the Vossmark army and its occult Lantern Bureau. Time every shot. Draft a new build each chapter. Bank what you learn.</p>
+      <div class="title-actions" id="title-actions"></div>
+      <p class="title-hint">Tap, click or press Space. Best on a phone held sideways, but portrait works too.</p>
+    </div>
+  </section>
+
+  <section id="scr-base" class="screen" hidden>
+    <header class="topbar">
+      <div class="topbar-title"><span class="eyebrow">Forward base</span><strong>Able Squad HQ</strong></div>
+      <div class="topbar-stats" id="base-stats"></div>
+      <button class="icon-btn" id="base-settings" type="button" aria-label="Settings">Settings</button>
+    </header>
+    <div class="base-scene" id="base-scene">
+      <canvas id="base-canvas" aria-hidden="true"></canvas>
+      <div class="hotspots" id="base-hotspots"></div>
+    </div>
+    <div class="station-list" id="station-list"></div>
+  </section>
+
+  <section id="scr-map" class="screen" hidden>
+    <header class="topbar">
+      <div class="topbar-title"><span class="eyebrow" id="map-place"></span><strong id="map-name"></strong></div>
+      <div class="topbar-stats" id="map-stats"></div>
+      <button class="icon-btn" id="map-menu" type="button">Menu</button>
+    </header>
+    <div class="map-wrap" id="map-wrap"><div class="map-table" id="map-table"></div></div>
+    <footer class="map-foot" id="map-foot"></footer>
+  </section>
+
+  <section id="scr-battle" class="screen battle" hidden>
+    <div class="battle-main">
+      <div class="timeline" id="timeline" aria-label="Turn order"></div>
+      <div class="stage-wrap" id="stage-wrap">
+        <canvas id="stage"></canvas>
+        <div class="banner" id="banner" hidden></div>
+        <p class="rotate-hint">Turn your phone sideways for a bigger battlefield.</p>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="squad-cards" id="squad-cards"></div>
+      <div class="target-line" id="target-line"></div>
+      <div class="cmds" id="cmds"></div>
+    </div>
+  </section>
+
+  <div class="dialog" id="dialog" hidden>
+    <div class="dialog-box">
+      <canvas class="dialog-portrait" id="dialog-portrait" width="160" height="160"></canvas>
+      <div class="dialog-body">
+        <div class="dialog-name" id="dialog-name"></div>
+        <p class="dialog-text" id="dialog-text"></p>
+        <div class="dialog-next">Tap to continue</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card" id="modal-card" role="dialog" aria-modal="true"></div>
+  </div>
+  <div class="toast" id="toast" hidden></div>
+</div>
+
+<script>/*__DATA__*/</script>
+<script>/*__JS__*/</script>

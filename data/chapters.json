@@ -1,0 +1,73 @@
+[
+  {
+    "id": "hedgerow",
+    "name": "Operation Hedgerow",
+    "place": "Bocage country, 40 km inland",
+    "blurb": "Break through the hedgerows and find the tank that the radio crews say glows at night.",
+    "recLevel": 0,
+    "scale": 1.0,
+    "rowScale": 0.05,
+    "bgs": ["hedgerow", "village"],
+    "bossBg": "village",
+    "encounters": {
+      "early": [["rifleman", "rifleman"], ["rifleman", "rifleman", "rifleman"], ["rifleman", "grenadier"], ["grenadier", "rifleman", "rifleman"]],
+      "late": [["rifleman", "grenadier", "rifleman", "rifleman"], ["flamer", "rifleman", "rifleman"], ["armoredcar"], ["grenadier", "flamer", "grenadier"], ["rifleman", "armoredcar", "rifleman"]],
+      "elite": [["officer", "rifleman", "rifleman"], ["shock"], ["officer", "flamer"]],
+      "miniboss": ["rifleman", "bunker", "rifleman"],
+      "boss": ["rifleman", "relictank", "grenadier"]
+    },
+    "story": {
+      "start": [
+        { "who": "radio", "text": "Able Squad, this is Hearth. You're through the beach line. Push inland along the hedgerows." },
+        { "who": "radio", "text": "Recon keeps reporting a Vossmark tank that shrugs off bazookas. Some say it glows. Probably nerves." },
+        { "who": "rifleman", "text": "Copy, Hearth. Probably nerves." }
+      ],
+      "mid": [
+        { "who": "radio", "text": "There's an MG bunker covering the crossroads. You won't get the column past it." },
+        { "who": "mg", "text": "Then we take the bunker." }
+      ],
+      "end": [
+        { "who": "medic", "text": "That's it. That's the tank. Look at the hull." },
+        { "who": "radio", "text": "Hearth to Able. Those marks are not paint. Whatever the Lantern Bureau did to it, put it down." }
+      ],
+      "win": [
+        { "who": "radio", "text": "Good work, Able. The column moves at dawn. Bring what's left of that relic back to base. Carefully." }
+      ]
+    }
+  },
+  {
+    "id": "frostfall",
+    "name": "Operation Frostfall",
+    "place": "The Kessel Forest, winter",
+    "blurb": "The Lantern Bureau has a camp deep in the pines. Something answers their radios.",
+    "recLevel": 6,
+    "scale": 1.3,
+    "rowScale": 0.05,
+    "bgs": ["snow"],
+    "bossBg": "snow",
+    "unlockAfter": "hedgerow",
+    "encounters": {
+      "early": [["ski", "ski"], ["ski", "rifleman", "ski"], ["mortar", "ski"], ["rifleman", "rifleman", "grenadier"]],
+      "late": [["ski", "mortar", "ski", "ski"], ["flamer", "ski", "flamer"], ["tank"], ["mortar", "rifleman", "mortar"], ["ski", "armoredcar", "ski"]],
+      "elite": [["shock", "ski"], ["officer", "mortar", "ski"], ["shock", "shock"]],
+      "miniboss": ["ski", "tank", "ski"],
+      "boss": ["shock", "horror", "shock"]
+    },
+    "story": {
+      "start": [
+        { "who": "radio", "text": "Able, Hearth. That relic you brought back keeps humming. Intelligence traced its signal here." },
+        { "who": "medic", "text": "Lovely. A haunted forest in January." }
+      ],
+      "mid": [
+        { "who": "radio", "text": "A tank is guarding the logging road. Break it and the camp is open." }
+      ],
+      "end": [
+        { "who": "rifleman", "text": "Hearth, the singing stopped. There's something standing in the clearing." },
+        { "who": "radio", "text": "Then it can bleed. Light it up, Able." }
+      ],
+      "win": [
+        { "who": "radio", "text": "Signal's gone dark. Come home, Able. Next operation is the coast. We'll talk when you're back." }
+      ]
+    }
+  }
+]

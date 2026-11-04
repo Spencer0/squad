@@ -1,0 +1,3 @@
+node_modules/
+assets/sprites/.render_tmp/
+__pycache__/

@@ -1,0 +1,72 @@
+{
+  "timing": {
+    "leadInMs": 260,
+    "ringMs": 900,
+    "perfectMs": 65,
+    "goodMs": 165,
+    "rhythmGapMs": 360,
+    "holdMs": 1100,
+    "holdSweet": 0.82,
+    "dodgeMs": 210,
+    "parryMs": 75,
+    "windowScale": { "normal": 1, "wide": 1.6, "widest": 2.3 }
+  },
+  "combat": {
+    "perfectMult": 1.5,
+    "goodMult": 1.0,
+    "missMult": 0.5,
+    "critMult": 1.75,
+    "baseCrit": 0.05,
+    "brokenBonus": 0.5,
+    "coverReduce": 0.5,
+    "apMax": 5,
+    "startAp": 1,
+    "burnPerStack": 4,
+    "burnCap": 12,
+    "shieldCapPct": 0.5,
+    "variance": 0.08,
+    "heavyPerfectBreak": 2.0,
+    "reviveFrac": 0.1,
+    "counterMult": 1.0
+  },
+  "caps": {
+    "burnPerAction": 5,
+    "apPerEvent": 2,
+    "dmgPct": 2.0,
+    "critPct": 0.6,
+    "timeline": 0.6
+  },
+  "rewards": {
+    "skirmish": { "gold": [14, 24], "xp": 30, "points": 4 },
+    "elite": { "gold": [32, 44], "xp": 50, "points": 8 },
+    "miniboss": { "gold": [50, 60], "xp": 60, "points": 12 },
+    "boss": { "gold": [0, 0], "xp": 0, "points": 20 },
+    "xpPerLevel": 100,
+    "clearBonus": 15,
+    "noDeathPct": 0.2,
+    "perfectsPerPoint": 6,
+    "speedBonusPct": 0.1,
+    "speedBonusMinutes": 25,
+    "deathBankPct": 0.25,
+    "skipGold": 20,
+    "heatPointsPct": 0.25,
+    "heatEnemyPct": 0.2
+  },
+  "prices": {
+    "common": 55,
+    "rare": 90,
+    "epic": 140,
+    "duo": 160,
+    "curse": 70,
+    "heal": 40,
+    "healPct": 0.3
+  },
+  "draft": {
+    "rarityWeights": { "common": 60, "rare": 28, "epic": 9, "curse": 4 },
+    "familyBias": 0.6,
+    "duoChance": 0.35,
+    "baseRerolls": 1
+  },
+  "camp": { "healPct": 0.35 },
+  "startGold": 30
+}
