@@ -71,6 +71,30 @@
       0.4934
     ]
   },
+  "shield": {
+    "idle": "shield_idle.png",
+    "attack": "shield_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.9132,
+      0.5109
+    ]
+  },
+  "bugler": {
+    "idle": "bugler_idle.png",
+    "attack": "bugler_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8284,
+      0.4603
+    ]
+  },
   "tent": {
     "idle": "tent_idle.png",
     "attack": null,
@@ -162,6 +186,78 @@
     "muzzle": [
       0.1018,
       0.1927
+    ]
+  },
+  "e_werewolf": {
+    "idle": "e_werewolf_idle.png",
+    "attack": "e_werewolf_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.9009,
+      0.5287
+    ]
+  },
+  "e_magus": {
+    "idle": "e_magus_idle.png",
+    "attack": "e_magus_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.7978,
+      0.4659
+    ]
+  },
+  "e_dwarf": {
+    "idle": "e_dwarf_idle.png",
+    "attack": "e_dwarf_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.7326,
+      0.7133
+    ]
+  },
+  "e_elf": {
+    "idle": "e_elf_idle.png",
+    "attack": "e_elf_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8273,
+      0.4047
+    ]
+  },
+  "e_priest": {
+    "idle": "e_priest_idle.png",
+    "attack": "e_priest_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.6775,
+      0.4189
+    ]
+  },
+  "e_ghoul": {
+    "idle": "e_ghoul_idle.png",
+    "attack": "e_ghoul_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8595,
+      0.4574
     ]
   },
   "colossus": {

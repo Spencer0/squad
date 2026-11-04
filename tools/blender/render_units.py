@@ -1146,6 +1146,770 @@ def build_e_shock(pose):
 
 
 # --------------------------------------------------------------------------
+# trench shield, bugler and the Lantern Bureau's fantasy troops
+# --------------------------------------------------------------------------
+def limb(S, H, a, b, pole, ru, re, rh, mu, mf, name="limb"):
+    """Two-bone limb with its own lengths/radii/materials (upper, fore)."""
+    S, H = Vector(S), Vector(H)
+    E = ik(S, H, a, b, pole)
+    capsule(name + "_u", S, E, ru, re, mu)
+    capsule(name + "_f", E, H, re, rh, mf)
+    return E
+
+
+def rag(name, p0, d, ln, r, mat, outline=0.5):
+    """A pointed strip of torn cloth (or a fur tuft) from p0 along d."""
+    p0 = Vector(p0)
+    d = Vector(d).normalized()
+    return rod(name, p0, p0 + d * ln, r, mat, r2=0.004, verts=5, outline=outline, smooth=False)
+
+
+def claws(name, hand, d, up, n, ln, r, mat, spread=0.045):
+    """A fan of n claws from a hand, pointing along d (spread across `up` x d)."""
+    hand, d = Vector(hand), Vector(d).normalized()
+    side = d.cross(Vector(up)).normalized()
+    tips = []
+    for i in range(n):
+        o = (i - (n - 1) / 2)
+        p0 = hand + d * 0.07 + side * o * spread
+        tip = p0 + (d + side * o * 0.18 - Vector(up).normalized() * 0.12).normalized() * ln
+        rod(name, p0, tip, r, mat, r2=0.0, verts=8, outline=0.5, smooth=False)
+        tips.append(tip)
+    return tips
+
+
+def short_leg(R, side, fx, thigh, shin, boot=(0.32, 0.2, 0.15), pole=(1, 0, 0.15),
+              r=(0.13, 0.115, 0.11, 0.1)):
+    k = R.k
+    y = side * 0.13 * R.broad
+    hip = R.hip + Vector((0, side * 0.11 * R.broad, -0.03))
+    c = Vector((fx, y, boot[2] / 2))
+    box("boot", boot, c, k.boot, bevel=0.05, seg=2)
+    ankle = c + Vector((-0.05, 0, boot[2] * 0.6))
+    knee = ik(hip, ankle, thigh, shin, pole)
+    capsule("thigh", hip, knee, r[0], r[1], k.trousers)
+    capsule("shin", knee, ankle, r[2], r[3], k.shin)
+
+
+def glyph(name, idx, h, mat, depth=0.03):
+    """One original Bureau glyph (rs.RUNES) on the local XZ plane, centred."""
+    w = 0.6 * h
+    for j, (a, b) in enumerate(rs.RUNES[idx % len(rs.RUNES)]):
+        pa = (a[0] * h - w / 2, a[1] * h - h / 2)
+        pb = (b[0] * h - w / 2, b[1] * h - h / 2)
+        rs.seg_box(f"{name}_{j}", pa, pb, h * 0.14, depth, 0.0, mat)
+
+
+# ---- allies ---------------------------------------------------------------
+def build_shield(pose):
+    k = ally_kit()
+    att = pose == "attack"
+    R = Rig(k, "ally", hip=(-0.16, 0, 0.42), lean=14 if att else 18, twist=0,
+            head_yaw=0, head_pitch=2)
+    R.leg(-1, -0.38, pole=(1, 0, 0.3))
+    R.leg(1, 0.06, pole=(1, 0, 0.3))
+    R.body()
+    with Group(R.H, name="head"):
+        R.face(brow=True)
+        R.ally_helmet()
+    plate = C("#68723f")
+    edge = C("#4b5330")
+    rivet = C("#a3a289")
+    dark = C("#1b1a14")
+    SW = M((0.5, -0.02, 0.0), (0, 0, -35))
+    with Group(SW, name="tshield"):
+        box("tplate", (0.05, 0.7, 1.22), (0, 0, 0.63), plate, bevel=0.015)
+        for z in (0.03, 1.23):
+            box("ttrim", (0.065, 0.72, 0.06), (0.006, 0, z), edge, bevel=0.01, outline=0.6)
+        for y in (-0.34, 0.34):
+            box("ttrimv", (0.065, 0.06, 1.22), (0.006, y, 0.63), edge, bevel=0.01, outline=0.6)
+        box("tband", (0.065, 0.7, 0.07), (0.006, 0, 0.56), edge, bevel=0.01, outline=0.5)
+        for i in range(9):
+            z = 0.13 + i * 0.122
+            for y in (-0.34, 0.34):
+                sphere("riv", 0.024, (0.045, y, z), rivet, outline=0.0)
+        for y in (-0.22, -0.11, 0.0, 0.11, 0.22):
+            for z in (0.03, 0.56, 1.23):
+                sphere("riv", 0.024, (0.045, y, z), rivet, outline=0.0)
+        # vision slit under a little visor lip
+        box("slit", (0.04, 0.3, 0.05), (0.03, 0.02, 0.99), dark, bevel=0.0, outline=0.0)
+        box("sliplip", (0.09, 0.36, 0.035), (0.06, 0.02, 1.04), edge, rot=(0, -25, 0),
+            bevel=0.005, outline=0.6)
+        for y in (-0.25, 0.25):
+            box("tfoot", (0.18, 0.06, 0.04), (-0.04, y, 0.02), edge, bevel=0.01, outline=0.6)
+        rod("tprop", (-0.03, 0.22, 0.8), (-0.42, 0.22, 0.0), 0.022, k.metal, outline=0.6)
+    handle = SW @ Vector((-0.1, -0.14, 0.74))
+    R.arm(-1, handle, pole=(-0.4, -0.8, -0.6))
+    if att:
+        hp = Vector((0.6, 0.38, 1.08))
+        R.arm(1, hp, pole=(-0.2, 0.8, -0.6))
+        W = M(hp, (0, -2, 0)) @ M(s=1.6)
+    else:
+        hp = Vector((0.24, 0.3, 1.18))
+        R.arm(1, hp, pole=(-0.3, 0.8, -1))
+        W = M(hp, (0, -72, 0)) @ M(s=1.6)
+    with Group(W, name="pistol"):
+        g = w_pistol(k)
+    return W @ g["muzzle"]
+
+
+def w_bugle(k, banner=True):
+    brass = C("#cfa446")
+    pts = [(0.0, 0, 0), (0.3, 0, 0), (0.44, 0, -0.06), (0.32, 0, -0.12), (0.08, 0, -0.12),
+           (-0.05, 0, -0.18), (0.08, 0, -0.24), (0.3, 0, -0.24)]
+    tube("bugtube", pts, 0.022, brass, radii=[0.8, 1, 1, 1, 1, 1, 1.1, 1.4], res=10)
+    rod("bugmouth", (-0.06, 0, 0), (0.01, 0, 0), 0.034, brass, r2=0.016, verts=12, outline=0.6)
+    lathe("bugbell", [(0.03, 0.0), (0.042, 0.1), (0.075, 0.18), (0.15, 0.245), (0.16, 0.26),
+                      (0.135, 0.255), (0.065, 0.185), (0.02, 0.0)], brass, segs=28,
+          loc=(0.28, 0, -0.24), rot=(0, 90, 0))
+    rod("bugthroat", (0.5, 0, -0.24), (0.52, 0, -0.24), 0.12, C("#5a4418"), verts=20,
+        outline=0.0)
+    if banner:
+        ol, wh = C(OLIVE_PATCH), C(WHITE)
+        prism("pennant", [(0.06, -0.26), (0.32, -0.26), (0.32, -0.52), (0.19, -0.43),
+                          (0.06, -0.52)], -0.01, 0.01, ol, bevel=0.0, outline=0.7)
+        # fictional unit mark: white chevron
+        for sgn in (-1, 1):
+            rs.seg_box("pchev", (0.19, -0.3), (0.19 + sgn * 0.07, -0.37), 0.035, 0.03, -0.004,
+                       wh)
+        for x in (0.08, 0.3):
+            rod("ptie", (x, 0, -0.25), (x, 0, -0.27), 0.02, wh, verts=8, outline=0.4)
+    return dict(mouth=Vector((-0.06, 0, 0)), grip=Vector((0.2, -0.03, -0.12)),
+                bell=Vector((0.54, 0, -0.24)))
+
+
+def build_bugler(pose):
+    k = ally_kit()
+    att = pose == "attack"
+    if att:
+        R = Rig(k, "ally", hip=(-0.04, 0, 0.55), lean=-8, twist=20, head_yaw=0, head_pitch=-16)
+        R.stance(-0.16, 0.15)
+    else:
+        R = Rig(k, "ally", twist=10)
+        R.stance()
+    R.body()
+    with Group(R.H, name="head"):
+        R.face(brow=att)
+        R.ally_helmet()
+        if att:   # puffed cheek
+            sphere("cheek", 0.07, sph(0.24, -38, -26), k.skin, outline=0.5)
+    # side drum on the near hip, slung from the far shoulder
+    dc = R.hip + Vector((-0.14, -0.32, -0.02))
+    wood, hoop, head = C("#7a4a28"), C("#4b5330"), C("#e6dfc8")
+    with Group(M(dc, (28, 0, 0)), name="drum"):
+        cyl("dshell", 0.17, 0.16, (0, 0, 0), wood, verts=28)
+        for z in (-0.075, 0.075):
+            cyl("dhoop", 0.18, 0.035, (0, 0, z), hoop, verts=28, outline=0.6)
+        cyl("dhead", 0.165, 0.01, (0, 0, 0.094), head, verts=28, outline=0.0)
+        for i in range(8):
+            a0, a1 = rad(i * 45), rad(i * 45 + 22.5)
+            rod("dcord", (0.18 * math.cos(a0), 0.18 * math.sin(a0), -0.06),
+                (0.18 * math.cos(a1), 0.18 * math.sin(a1), 0.06), 0.009, k.webbing, verts=6,
+                outline=0.0)
+        for s in (-1, 1):
+            rod("dstick", (-0.12, s * 0.05, 0.14), (0.18, s * 0.08, 0.2), 0.014,
+                C("#c2a46c"), verts=8, outline=0.5)
+    rod("dstrap", R.tp((0.02, 0.22, 0.7)), dc + Vector((0.02, 0.06, 0.12)), 0.02, k.webbing,
+        outline=0.5)
+    if att:
+        mouth = R.H @ sph(0.27, -10, -30)
+        W = M(mouth, (0, -14, 0)) @ M(s=1.25)
+        W = W @ Matrix.Translation(Vector((0.06, 0, 0)))
+    else:
+        hn = Vector((0.18, -0.33, 0.66))
+        W = M(hn, (0, 72, 0)) @ M(s=1.25)
+        W = W @ Matrix.Translation(-Vector((0.2, -0.03, -0.12)))
+    with Group(W, name="bugle"):
+        g = w_bugle(k)
+    if att:
+        R.arm(-1, W @ g["grip"], pole=(-0.2, -1, -0.8))
+        R.arm(1, R.tp((0.02, 0.34, 0.12)), pole=(-0.8, 0.7, 0))
+    else:
+        R.arm(-1, W @ g["grip"], pole=(-0.4, -0.5, -1))
+        R.arm(1, Vector((0.08, 0.33, 0.62)), pole=(-0.4, 0.6, -1))
+    return W @ g["bell"]
+
+
+# ---- Lantern Bureau -------------------------------------------------------
+def build_e_werewolf(pose):
+    att = pose == "attack"
+    fur, fur_d, fur_l = C("#8f8474"), C("#635a4e"), C("#b3a894")
+    coat, coat_d = C("#565c53"), C("#41453e")
+    belt, buckle = C(ENEMY["belt"]), C(ENEMY["buckle"])
+    ivory, nose, maw, tooth = C("#ebe3cb"), C("#1f1e1b"), C("#6e2a26"), C("#f1ebd8")
+    eye = C(MINT, True)
+    lean = 44 if att else 32
+    hip = Vector((-0.06, 0, 0.86)) if att else Vector((-0.14, 0, 0.92))
+    T = M(hip, (0, lean, 0))
+    # digitigrade legs: thigh forward to the knee, shank back to the hock, then the paw
+    for side, dx in ((-1, -0.34 if att else -0.16), (1, 0.3 if att else 0.12)):
+        y = side * 0.18
+        H0 = hip + Vector((0, y, -0.02))
+        paw = Vector((hip.x + dx + 0.12, y, 0.05))
+        hock = paw + Vector((-0.2, 0, 0.27))
+        knee = ik(H0, hock, 0.42, 0.40, (1, 0, 0.1))
+        capsule("wthigh", H0, knee, 0.18, 0.13, coat_d if side < 0 else coat)
+        capsule("wshin", knee, hock, 0.11, 0.075, fur)
+        capsule("wmeta", hock, paw + Vector((-0.06, 0, 0.03)), 0.075, 0.065, fur)
+        box("wpaw", (0.25, 0.16, 0.1), paw, fur_d, bevel=0.04)
+        for dy in (-0.05, 0.0, 0.05):
+            p0 = paw + Vector((0.11, dy, -0.01))
+            rod("wtoe", p0, p0 + Vector((0.08, 0, -0.03)), 0.022, ivory, r2=0.0, verts=8,
+                outline=0.5, smooth=False)
+    with Group(T, name="wtorso"):
+        box("wchest", (0.62, 0.66, 0.78), (0.0, 0, 0.5), coat, bevel=0.2, seg=3)
+        sphere("wbelly", 1.0, (0.22, 0, 0.52), fur_l, scale=(0.15, 0.24, 0.3), outline=0.0)
+        box("wbelt", (0.66, 0.7, 0.08), (0, 0, 0.16), belt, bevel=0.03)
+        box("wbuckle", (0.03, 0.1, 0.08), (0.33, -0.06, 0.16), buckle, bevel=0.01, outline=0.5)
+        # torn greatcoat skirt, open at the front, ragged hem
+        lathe("wskirt", [(0.3, 0.2), (0.41, -0.36), (0.35, -0.37), (0.27, 0.2)], coat, a0=50,
+              a1=310, segs=26, scale=(1.0, 1.05, 1))
+        for i, a in enumerate(range(70, 300, 36)):
+            ca, sa = math.cos(rad(a)), math.sin(rad(a))
+            p0 = Vector((0.4 * ca, 0.42 * sa, -0.32))
+            rag("whem", p0, (ca * 0.3, sa * 0.3, -1), 0.1 + 0.07 * (i % 3), 0.07, coat)
+        # fur hump and ruff bursting out of the collar
+        sphere("whump", 1.0, (-0.06, 0, 0.86), fur, scale=(0.32, 0.38, 0.24))
+        for i, (az, el) in enumerate([(150, 40), (205, 42), (120, 55), (180, 62), (180, 8)]):
+            d = sph(1, az, el)
+            p0 = Vector((-0.06, 0, 0.86)) + Vector((d.x * 0.28, d.y * 0.34, d.z * 0.2))
+            rag("wtuft", p0, d + Vector((-0.5, 0, 0.0)), 0.13 + 0.04 * (i % 3), 0.06,
+                fur if i % 2 else fur_d)
+    S = {s: T @ Vector((0.08, s * 0.37, 0.8)) for s in (-1, 1)}
+    for s in (-1, 1):
+        sphere("wshoulder", 0.16, S[s], coat if s < 0 else coat_d)
+    head_c = Vector((0.66, 0, 1.66)) if att else Vector((0.54, 0, 1.69))
+    capsule("wneck", T @ Vector((0.2, 0, 0.82)), head_c + Vector((-0.1, 0, -0.04)), 0.17, 0.15,
+            fur)
+    with Group(M(head_c, (0, 8 if att else 14, 0)), name="whead"):
+        sphere("wskull", 0.21, (0, 0, 0), fur, scale=(1.15, 1.0, 0.92))
+        for s in (-1, 1):
+            sphere("wcheek", 0.13, (-0.02, s * 0.15, -0.08), fur_l)
+            if s < 0:
+                rag("wcheekt", (-0.06, s * 0.2, -0.1), (-1, s * 0.6, -0.3), 0.16, 0.07, fur_l)
+        rod("wsnout", (0.12, 0, -0.02), (0.44, 0, -0.06), 0.11, fur, r2=0.065, verts=16)
+        sphere("wnose", 0.048, (0.45, 0, -0.04), nose, outline=0.6)
+        jaw_a = -30 if att else -10
+        jd = Vector((math.cos(rad(jaw_a)), 0, math.sin(rad(jaw_a))))
+        j0 = Vector((0.1, 0, -0.12))
+        if att:
+            sphere("wmaw", 0.08, (0.22, 0, -0.14), maw, scale=(1.4, 0.8, 0.8), outline=0.0)
+        rod("wjaw", j0, j0 + jd * 0.3, 0.07, fur_l, r2=0.045, verts=14)
+        for x in (0.24, 0.36):
+            rod("wfang", (x, -0.045, -0.1), (x, -0.045, -0.17), 0.016, tooth, r2=0.0, verts=6,
+                outline=0.4, smooth=False)
+            jp = j0 + jd * (x - 0.06)
+            rod("wfangl", jp + Vector((0, -0.04, 0.04)), jp + Vector((0, -0.04, 0.1)), 0.014,
+                tooth, r2=0.0, verts=6, outline=0.4, smooth=False)
+        for s in (-1, 1):
+            sphere("weye", 0.05, (0.19, s * 0.105, 0.04), eye, scale=(0.6, 1.0, 0.75),
+                   outline=0.0)
+            box("wbrow", (0.14, 0.07, 0.035), (0.16, s * 0.11, 0.1), fur_d,
+                rot=(0, 18, s * -10), bevel=0.01, outline=0.5)
+            rod("wear", (-0.04, s * 0.12, 0.12), (-0.14, s * 0.15, 0.38), 0.085, fur, r2=0.0,
+                verts=5, outline=1.0, smooth=False)
+            rod("wearin", (-0.02, s * 0.15, 0.15), (-0.11, s * 0.17, 0.32), 0.04, fur_d,
+                r2=0.0, verts=5, outline=0.0, smooth=False)
+    # arms: torn sleeves to the elbow, furred forearms, huge clawed hands
+    if att:
+        hands = {-1: Vector((0.97, -0.34, 1.18)), 1: Vector((0.0, 0.42, 1.0))}
+        poles = {-1: (-0.2, -0.8, -1), 1: (0.4, 0.6, -1)}
+    else:
+        hands = {-1: Vector((0.5, -0.4, 0.62)), 1: Vector((0.44, 0.38, 0.72))}
+        poles = {-1: (-0.6, -0.4, -0.6), 1: (-0.6, 0.4, -0.6)}
+    tip = None
+    for s in (-1, 1):
+        H = hands[s]
+        E = ik(S[s], H, 0.46, 0.46, poles[s])
+        sl = coat if s < 0 else coat_d
+        capsule("wuarm", S[s], E, 0.15, 0.125, sl)
+        u = (E - S[s]).normalized()
+        # ragged sleeve end: a few points flaring past the elbow
+        for a in (-60, 60):
+            off = Matrix.Rotation(rad(a), 3, u) @ Vector((0, -1, 0))
+            off = (off - u * off.dot(u)).normalized()
+            rag("wcuff", E - u * 0.04 + off * 0.11, u + off * 0.25, 0.13, 0.05, sl)
+        capsule("wfarm", E, H, 0.115, 0.09, fur)
+        sphere("whand", 0.12, H, fur_d, scale=(1.2, 0.9, 1.0))
+        d = (H - E).normalized()
+        up = Vector((0, -1, 0.3)) if (att and s < 0) else Vector((0, 0, 1))
+        tips = claws("wclaw", H, d, up, 4 if att else 3, 0.2 if att else 0.18, 0.032, ivory,
+                     spread=0.05 if att else 0.06)
+        if s < 0:
+            tip = max(tips, key=lambda p: p.x)
+    return tip
+
+
+def w_lantern_staff(k, Ls, blaze=False):
+    """Staff along +X (origin = near grip), caged mint lantern on the far end."""
+    wood, iron = C("#4a3424"), C("#33352f")
+    rod("ststaff", (-0.95, 0, 0), (Ls, 0, 0), 0.03, wood, verts=12)
+    rod("stfoot", (-1.0, 0, 0), (-0.92, 0, 0), 0.036, iron, r2=0.02, verts=10, outline=0.6)
+    for x in (0.0, 0.18):
+        rod("stwrap", (x - 0.04, 0, 0), (x + 0.04, 0, 0), 0.038, C("#6a5a3e"), verts=12,
+            outline=0.5)
+    rod("stcollar", (Ls - 0.05, 0, 0), (Ls + 0.02, 0, 0), 0.06, iron, verts=14)
+    c = Ls + 0.17
+    # crescent horns cradling the cage
+    for s in (-1, 1):
+        tube("sthorn", [(Ls, 0, 0), (Ls + 0.06, 0, s * 0.14), (Ls + 0.2, 0, s * 0.2),
+                        (Ls + 0.32, 0, s * 0.13)], 0.018, iron, radii=[1.2, 1, 0.8, 0.3])
+    sphere("stglow", 0.115 if blaze else 0.095, (c, 0, 0), C(MINT, True), outline=0.0)
+    sphere("stcore", 0.06 if blaze else 0.05, (c, -0.05, 0), C("#e6fff1", True), outline=0.0)
+    for i in range(4):
+        a = rad(45 + i * 90)
+        rod("stbar", (Ls + 0.03, 0.12 * math.cos(a), 0.12 * math.sin(a)),
+            (Ls + 0.31, 0.12 * math.cos(a), 0.12 * math.sin(a)), 0.014, iron, verts=6,
+            outline=0.45)
+    for x in (Ls + 0.03, Ls + 0.31):
+        rod("stband", (x - 0.015, 0, 0), (x + 0.015, 0, 0), 0.135, iron, verts=16, outline=0.5)
+    rod("stcap", (Ls + 0.31, 0, 0), (Ls + 0.42, 0, 0), 0.12, iron, r2=0.02, verts=12)
+    rod("stfin", (Ls + 0.42, 0, 0), (Ls + 0.5, 0, 0), 0.02, iron, r2=0.0, verts=6, outline=0.5)
+    if blaze:
+        fl = C("#b9ffd9", True)
+        for i, (az, ln) in enumerate([(0, 0.3), (40, 0.22), (-40, 0.22), (80, 0.18),
+                                       (-80, 0.18), (125, 0.14), (-125, 0.14), (180, 0.12)]):
+            d = Vector((math.cos(rad(az)), 0, math.sin(rad(az))))
+            p0 = Vector((c, -0.13, 0)) + d * 0.08
+            rod("stray", p0, p0 + d * ln, 0.028, fl if i % 2 else C(MINT, True), r2=0.0,
+                verts=6, outline=0.0, smooth=False)
+    return dict(lantern=Vector((c, 0, 0)))
+
+
+def build_e_magus(pose):
+    k = enemy_kit(coat="#3d413a", coat_dark="#2c2f2a", trousers="#454940", rubber="#3a3d36",
+                  hand="#2c2e2a", belt="#2a2b26")
+    att = pose == "attack"
+    if att:
+        R = Rig(k, "enemy", hip=(-0.06, 0, 0.55), lean=10, twist=28, head_yaw=4, head_pitch=6)
+        R.stance(-0.22, 0.18)
+    else:
+        R = Rig(k, "enemy", twist=6)
+        R.stance(-0.07, 0.07)
+    R.body(coat_len=0.035)
+    mint = C(MINT, True)
+    with Group(R.T, name="mantle"):
+        lathe("mmantle", [(0.2, 0.74), (0.34, 0.63), (0.42, 0.34), (0.37, 0.33), (0.19, 0.68)],
+              k.coat_dark, segs=30)
+        # field-grey uniform showing at the robe's opening
+        box("mtunic", (0.03, 0.14, 0.42), (0.18, 0.0, 0.38), C("#6e736a"), bevel=0.01,
+            outline=0.5)
+    # glyph hem on the near side of the robe
+    with Group(M((0.0, -0.37, 0.15), (0, 0, 0)), name="mhem"):
+        for i, x in enumerate((-0.15, 0.0, 0.15)):
+            with Group(M((x, 0, 0)), name="mg"):
+                glyph("mglyph", (i * 3 + 1), 0.11, mint)
+    with Group(R.H, name="head"):
+        R.mask(lens_hex=MINT, emissive=True)
+        hood = k.coat_dark
+        lathe("mhoodtop", [(0.002, 0.62), (0.05, 0.54), (0.17, 0.36), (0.3, 0.19), (0.345, 0.1),
+                           (0.3, 0.1), (0.002, 0.12)], hood, segs=30, loc=(-0.05, 0, 0.0),
+              rot=(0, -12, 0))
+        lathe("mhoodside", [(0.31, 0.16), (0.35, 0.16), (0.38, -0.34), (0.33, -0.35),
+                            (0.28, 0.0)], hood, a0=60, a1=300, segs=28, loc=(-0.04, 0, 0))
+        lathe("mhoodrim", [(0.33, 0.1), (0.36, 0.1), (0.36, 0.15), (0.33, 0.15)], k.coat,
+              a0=-80, a1=80, segs=24, loc=(-0.05, 0, 0.0), rot=(0, -12, 0), outline=0.5)
+    if att:
+        hn = Vector((0.36, -0.3, 1.1))
+        d = Vector((math.cos(rad(22)), 0, math.sin(rad(22))))
+        W = Matrix.LocRotScale(hn, Euler((0, rad(-22), 0)), Vector((1, 1, 1)))
+        Ls = 0.5
+        with Group(W, name="staff"):
+            g = w_lantern_staff(k, Ls, blaze=True)
+        R.arm(-1, hn, pole=(-0.2, -1, -0.8))
+        R.arm(1, W @ Vector((-0.32, 0, 0)), pole=(-0.3, 0.6, -1))
+    else:
+        hn = Vector((0.26, -0.36, 0.92))
+        W = M(hn, (0, -88, 0))
+        with Group(W, name="staff"):
+            g = w_lantern_staff(k, 0.74)
+        R.arm(-1, hn, pole=(-0.3, -0.6, -1))
+        R.arm(1, Vector((0.1, 0.32, 0.62)), pole=(-0.4, 0.6, -1))
+    return W @ g["lantern"]
+
+
+def w_blunderbuss(k):
+    wood, iron, brass = C("#6b4428"), C("#3e403b"), C("#b08a3e")
+    prism("bbstock", [(-0.38, -0.15), (-0.38, 0.03), (0.02, 0.04), (0.3, 0.03), (0.3, -0.03),
+                      (0.02, -0.05), (-0.06, -0.11), (-0.16, -0.09)], -0.045, 0.045, wood,
+          bevel=0.02)
+    box("bblock", (0.13, 0.08, 0.07), (0.02, 0, 0.04), iron, bevel=0.01, outline=0.7)
+    rod("bbhammer", (-0.02, 0, 0.07), (-0.06, 0, 0.13), 0.016, iron, outline=0.5)
+    rod("bbbarrel", (0.0, 0, 0.05), (0.62, 0, 0.05), 0.042, iron, r2=0.05, verts=16)
+    for x in (0.12, 0.28):
+        rod("bbband", (x - 0.02, 0, 0.05), (x + 0.02, 0, 0.05), 0.056, brass, verts=16,
+            outline=0.5)
+    lathe("bbflare", [(0.05, 0.0), (0.06, 0.08), (0.09, 0.15), (0.13, 0.19), (0.13, 0.21),
+                      (0.105, 0.2), (0.06, 0.12), (0.04, 0.0)], brass, segs=24,
+          loc=(0.58, 0, 0.05), rot=(0, 90, 0))
+    rod("bbmouth", (0.76, 0, 0.05), (0.775, 0, 0.05), 0.1, C("#1b1a14"), verts=20, outline=0.0)
+    return dict(grip=Vector((-0.06, 0, -0.06)), fore=Vector((0.22, 0, 0.0)),
+                muzzle=Vector((0.8, 0, 0.05)))
+
+
+def build_e_dwarf(pose):
+    k = enemy_kit(coat="#686d64", coat_dark="#565b52", trousers="#5c6057", hand="#5a3c26",
+                  boot="#3a2a1e", shin="#4a3524", belt="#5b3c24", buckle="#b08a3e",
+                  rubber="#d6a07a")
+    att = pose == "attack"
+    b = 1.6
+    iron, iron_d, rivet = C("#50534d"), C("#3c3e39"), C("#8c8f85")
+    beard, beard_d, skin = C("#b5632f"), C("#8c4722"), C("#d9a27c")
+    if att:
+        R = Rig(k, "enemy", hip=(-0.04, 0, 0.36), lean=6, twist=22, head_yaw=4, head_pitch=2,
+                broad=b)
+        short_leg(R, -1, -0.24, 0.16, 0.15)
+        short_leg(R, 1, 0.2, 0.16, 0.15)
+    else:
+        R = Rig(k, "enemy", hip=(0, 0, 0.36), lean=0, twist=8, broad=b)
+        short_leg(R, -1, -0.12, 0.16, 0.15)
+        short_leg(R, 1, 0.12, 0.16, 0.15)
+    R.body(coat_len=0.17)
+    with Group(R.T, name="armour"):
+        sphere("dplate", 1.0, (0.06, 0, 0.42), iron, scale=(0.29, 0.43, 0.34))
+        for z, az0 in ((0.2, -60), (0.42, -70), (0.62, -55)):
+            for az in range(az0, -az0 + 1, 30):
+                p = Vector((0.06, 0, z)) + Vector((0.29 * math.cos(rad(az)),
+                                                   0.43 * math.sin(rad(az)), 0))
+                sphere("driv", 0.022, p * 1.0 + Vector((0.01 * math.cos(rad(az)), 0, 0)),
+                       rivet, outline=0.0)
+        for s in (-1, 1):
+            sphere("dpauldron", 0.2, (-0.02, s * 0.4, 0.62), iron, scale=(1.05, 0.8, 0.7))
+            for i in range(3):
+                sphere("dpriv", 0.02, (0.12 - i * 0.12, s * 0.555, 0.6), rivet, outline=0.0)
+        box("dbelt", (0.55, 0.85, 0.1), (0.04, 0, 0.12), k.belt, bevel=0.03)
+        box("dbuckle", (0.04, 0.13, 0.11), (0.31, -0.06, 0.12), k.buckle, bevel=0.01,
+            outline=0.5)
+        box("dpowder", (0.12, 0.1, 0.16), (0.02, -0.46, 0.06), C("#6a4529"), bevel=0.03,
+            outline=0.7)
+    with Group(R.H, name="head"):
+        sphere("dhead", 0.27, (0, 0, 0), skin, scale=(1.0, 0.95, 1.0), segs=28, rings=14)
+        for az in (-30, 30):
+            sphere("deye", 0.032, sph(0.262, az, 4), C(ALLY["eye"]), scale=(0.7, 0.8, 1.0),
+                   rot=(0, 0, az), outline=0.0)
+        sphere("dnose", 0.085, sph(0.27, -4, -8), skin, scale=(1.1, 0.9, 1.0), outline=0.7)
+        sphere("dear", 0.06, sph(0.25, -92, -6), skin, scale=(0.6, 1, 1), outline=0.6)
+        for s in (-1, 1):
+            box("dbrow", (0.08, 0.15, 0.055), sph(0.265, s * 30, 14), beard_d,
+                rot=(0, -10, s * 30), bevel=0.02, outline=0.5)
+        # helm with nose guard and rivets
+        hb = Vector((-0.01, 0, 0.08))
+        lathe("dhelm", [(0.002, 0.27), (0.14, 0.255), (0.25, 0.19), (0.305, 0.08),
+                        (0.31, 0.0), (0.002, 0.0)], iron, segs=32, loc=hb, scale=(1.05, 1, 1))
+        lathe("dhrim", [(0.29, -0.03), (0.33, -0.03), (0.33, 0.05), (0.29, 0.05)], iron_d,
+              segs=32, loc=hb, scale=(1.05, 1, 1), outline=0.6)
+        for az in range(-150, 181, 30):
+            p = hb + Vector((0.335 * 1.05 * math.cos(rad(az)), 0.335 * math.sin(rad(az)), 0.01))
+            sphere("dhriv", 0.02, p, rivet, outline=0.0)
+        box("dnasal", (0.04, 0.065, 0.24), (0.335, -0.03, 0.0), iron_d, rot=(0, -6, -5),
+            bevel=0.01, outline=0.7)
+        sphere("dknob", 0.05, hb + Vector((0, 0, 0.27)), iron_d, outline=0.6)
+        with Group(M(hb + Vector((-0.02, -0.33, 0.14)), (0, 0, 0)), name="dglyph"):
+            glyph("dglyph", 0, 0.12, C(MINT, True))
+        # the beard: a broad wedge with two braids, moustache sweeping out
+        prism("dbeard", [(0.1, -0.02), (0.3, -0.1), (0.4, -0.36), (0.36, -0.66),
+                         (0.22, -0.76), (0.06, -0.52), (0.02, -0.2)], -0.26, 0.26, beard,
+              bevel=0.09, seg=3, smooth=True)
+        for s in (-1, 1):
+            capsule("dtache", sph(0.27, s * 10, -18), sph(0.27, s * 10, -18) +
+                    Vector((0.04, s * 0.17, -0.12)), 0.05, 0.03, beard_d)
+            for i in range(4):
+                sphere("dbraid", 0.06 - i * 0.006, (0.3 - i * 0.01, s * 0.12, -0.7 - i * 0.08),
+                       beard_d if i % 2 else beard, outline=0.7)
+            rod("dbring", (0.29, s * 0.12, -0.76), (0.29, s * 0.12, -0.8), 0.06, C("#8c8f85"),
+                verts=12, outline=0.5)
+        for i, (y, z) in enumerate(((-0.12, -0.35), (0.0, -0.5), (0.12, -0.3), (-0.06, -0.62))):
+            box("dstreak", (0.02, 0.025, 0.16), (0.39 - i * 0.01, y - 0.2, z), beard_d,
+                rot=(0, 10, 0), bevel=0.0, outline=0.0)
+    if att:
+        W = M(R.tp((0.12, -0.3, 0.32)), (0, -4, 0)) @ M(s=1.15)
+    else:
+        W = M((0.2, -0.46, 0.56), (0, -40, 0)) @ M(s=1.15)
+    with Group(W, name="blunderbuss"):
+        g = w_blunderbuss(k)
+    R.arm(-1, W @ g["grip"], pole=(-0.4, -0.8, -1))
+    R.arm(1, W @ g["fore"], pole=(-0.2, 0.3, -1))
+    return W @ g["muzzle"]
+
+
+def w_longbow(k, draw=None):
+    """Bow in the local XZ plane, grip at the origin, back toward +X."""
+    wood, leather, string = C("#5e3d22"), C("#3a2a1e"), C("#d9d2bd")
+    top, bot = Vector((-0.24, 0, 0.82)), Vector((-0.24, 0, -0.82))
+    tube("bowlimb", [top, (-0.09, 0, 0.56), (0.0, 0, 0.22), (0.02, 0, 0.0), (0.0, 0, -0.22),
+                     (-0.09, 0, -0.56), bot], 0.03, wood, radii=[0.45, 0.8, 1, 1.15, 1, 0.8, 0.45])
+    rod("bowgrip", (0.02, 0, -0.08), (0.02, 0, 0.08), 0.04, leather, verts=12, outline=0.6)
+    for p in (top, bot):
+        sphere("bownock", 0.025, p, C("#cfc4a4"), outline=0.5)
+    if draw is None:
+        rod("bowstr", top, bot, 0.007, string, verts=6, outline=0.0)
+    else:
+        for p in (top, bot):
+            rod("bowstr", p, draw, 0.007, string, verts=6, outline=0.0)
+
+
+def w_arrow(name, p0, p1, mat_shaft, mat_head, mat_flet):
+    p0, p1 = Vector(p0), Vector(p1)
+    d = (p1 - p0).normalized()
+    rod(name, p0, p1 - d * 0.07, 0.011, mat_shaft, verts=6, outline=0.5)
+    rod(name + "h", p1 - d * 0.08, p1, 0.03, mat_head, r2=0.0, verts=4, outline=0.5,
+        smooth=False)
+    for a in (0, 120, 240):
+        off = Matrix.Rotation(rad(a), 3, d) @ d.orthogonal().normalized()
+        rod(name + "f", p0 + d * 0.02, p0 + d * 0.12 + off * 0.04, 0.018, mat_flet, r2=0.004,
+            verts=4, outline=0.4, smooth=False)
+
+
+def build_e_elf(pose):
+    k = enemy_kit(coat="#6a6f65", coat_dark="#585d55", trousers="#5a5e55", hand="#ece8de",
+                  boot="#3c3428", shin="#4d4537", belt="#4a3a28", buckle="#8a7a4a")
+    att = pose == "attack"
+    skin = C("#ece8de")
+    earm = C("#e4d8ca")
+    cloak = toon("elfcloak", "#5d6849", [(0.42, "#454d3a"), (0.6, "#6e6a4c"), (0.78, "#3c4334")],
+                 patch_scale=3.5)
+    if att:
+        R = Rig(k, "enemy", hip=(-0.04, 0, 0.55), lean=-4, twist=60, head_yaw=4,
+                head_pitch=2, broad=0.85)
+        R.stance(-0.2, 0.18)
+    else:
+        R = Rig(k, "enemy", twist=10, broad=0.85)
+        R.stance(-0.07, 0.07)
+    R.body(coat_len=0.26)
+    with Group(R.T, name="cloak"):
+        lathe("ecloak", [(0.2, 0.72), (0.32, 0.62), (0.4, 0.1), (0.46, -0.36), (0.41, -0.37),
+                         (0.35, 0.1), (0.27, 0.6), (0.19, 0.68)], cloak, a0=70, a1=290, segs=28)
+        lathe("ecollar", [(0.17, 0.74), (0.27, 0.66), (0.27, 0.6), (0.17, 0.66)], cloak,
+              segs=24)
+        # quiver on the back
+        with Group(M((-0.3, 0.06, 0.42), (0, -22, 0)), name="quiver"):
+            cyl("equiver", 0.07, 0.5, (0, 0, 0), C("#4a3a28"), verts=14)
+            for i, (dy, dx) in enumerate(((-0.03, 0.02), (0.03, -0.02), (0.0, 0.03))):
+                rod("eshaft", (dx, dy, 0.24), (dx, dy, 0.36), 0.01, C("#8b6a3e"), verts=6,
+                    outline=0.4)
+                sphere("eflet", 0.03, (dx, dy, 0.38), C("#d9d6c8"), scale=(0.5, 0.5, 1.4),
+                       outline=0.5)
+    eye = C("#a8ffd2", True)
+    with Group(R.H, name="head"):
+        sphere("ehead", 0.27, (0, 0, 0), skin, scale=(1.0, 0.92, 1.05), segs=28, rings=14)
+        for az in (-30, 30):
+            sphere("eeye", 0.034, sph(0.255, az, 2), eye, scale=(0.7, 1.2, 0.7),
+                   rot=(0, 0, az), outline=0.0)
+            box("ebrow", (0.04, 0.12, 0.025), sph(0.265, az, 12), C("#9a9484"),
+                rot=(0, -14, az + (12 if az < 0 else -12)), bevel=0.005, outline=0.0)
+        sphere("enose", 0.04, sph(0.27, -6, -10), skin, scale=(1.3, 0.8, 1.0), outline=0.5)
+        hood = k.coat
+        dome("ehood", 0.31, (-0.02, 0, 0.0), hood, scale=(1.05, 1.0, 1.12))
+        lathe("ehoodside", [(0.29, 0.02), (0.325, 0.02), (0.35, -0.36), (0.31, -0.37),
+                            (0.26, 0.0)], hood, a0=62, a1=298, segs=28, loc=(-0.02, 0, 0))
+        rod("ehoodpt", (-0.12, 0, 0.26), (-0.3, 0, 0.36), 0.08, hood, r2=0.0, verts=10,
+            outline=1.0)
+        # long ears pushed out through the hood, sweeping back and up
+        for s in (-1, 1):
+            with Group(M((-0.06, s * 0.34, -0.02), (0, 0, 0)), name="eear"):
+                prism("eearp", [(0.06, -0.06), (0.06, 0.06), (-0.12, 0.2), (-0.32, 0.34),
+                                (-0.12, 0.08), (-0.02, -0.08)], -0.025, 0.025, earm,
+                      bevel=0.012, outline=1.0)
+                prism("eearin", [(0.03, -0.02), (0.0, 0.05), (-0.2, 0.22), (-0.06, 0.04)],
+                      -0.03 if s < 0 else 0.03, -0.028 if s < 0 else 0.028, C("#c9a99c"),
+                      bevel=0.0, outline=0.0)
+    shaft, head, flet = C("#8b6a3e"), C("#3b3d38"), C("#d9d6c8")
+    if att:
+        grip = Vector((0.7, 0.1, 1.34))
+        drawp = Vector((0.12, -0.18, 1.42))
+        Wb = M(grip, (0, -6, 0))
+        with Group(Wb, name="bow"):
+            w_longbow(k, draw=Wb.inverted() @ drawp)
+        R.arm(1, grip, pole=(-0.2, 0.5, -1))
+        R.arm(-1, drawp, pole=(-1, -0.6, 0.2))
+        d = (grip + Vector((0, 0, 0.03)) - drawp).normalized()
+        tipp = grip + Vector((0, 0, 0.03)) + d * 0.2
+        w_arrow("earrow", drawp - d * 0.04, tipp, shaft, head, flet)
+        return tipp
+    grip = Vector((0.26, -0.38, 0.92))
+    Wb = M(grip, (0, 6, 0))
+    with Group(Wb, name="bow"):
+        w_longbow(k)
+    R.arm(-1, grip, pole=(-0.3, -0.6, -1))
+    R.arm(1, Vector((0.12, 0.3, 0.62)), pole=(-0.4, 0.6, -1))
+    return None
+
+
+def w_censer(k, hot=False):
+    brass, iron = C("#8d7340"), C("#3e403b")
+    lathe("cbowl", [(0.002, -0.12), (0.06, -0.115), (0.11, -0.06), (0.125, 0.0),
+                    (0.002, 0.0)], brass, segs=24)
+    lathe("cfoot", [(0.002, -0.16), (0.06, -0.16), (0.05, -0.11), (0.002, -0.11)], iron,
+          segs=16, outline=0.6)
+    lathe("clid", [(0.002, 0.15), (0.04, 0.14), (0.09, 0.09), (0.12, 0.03), (0.12, 0.015),
+                   (0.002, 0.015)], iron, segs=24)
+    lathe("cgap", [(0.002, 0.0), (0.12, 0.0), (0.12, 0.018), (0.002, 0.018)],
+          C(MINT, True), segs=24, outline=0.0)
+    for i in range(6):
+        a = rad(-90 + i * 60)
+        sphere("chole", 0.022, (0.095 * math.cos(a), 0.095 * math.sin(a), 0.075),
+               C(MINT, True), outline=0.0)
+    sphere("cfinial", 0.03, (0, 0, 0.17), brass, outline=0.5)
+    return dict(top=Vector((0, 0, 0.19)), centre=Vector((0, 0, 0.02)))
+
+
+def smoke(name, pts, mats, seed=5):
+    """Puffy cloud: each point is a cluster of three overlapping balls."""
+    rng = random.Random(seed)
+    for i, (p, r) in enumerate(pts):
+        p = Vector(p)
+        sphere(name, r, p, mats[i % len(mats)], scale=(1.15, 0.9, 1.0), outline=0.45)
+        for j in range(2):
+            a = rng.uniform(0, 2 * math.pi)
+            o = Vector((math.cos(a) * r * 0.75, 0.03, math.sin(a) * r * 0.6))
+            sphere(name, r * rng.uniform(0.55, 0.75), p + o, mats[(i + j + 1) % len(mats)],
+                   scale=(1.1, 0.9, 1.0), outline=0.45)
+
+
+def build_e_priest(pose):
+    k = enemy_kit(coat="#2b2a2d", coat_dark="#1e1d20", trousers="#29282b", rubber="#3a3a36",
+                  hand="#2a292c", boot="#1c1b1d", belt="#1f1e21", buckle="#8a7a4a",
+                  rim="#1c1b1d", can="#6a6858")
+    att = pose == "attack"
+    if att:
+        R = Rig(k, "enemy", hip=(-0.04, 0, 0.55), lean=-8, twist=22, head_yaw=4,
+                head_pitch=-10)
+        R.stance(-0.18, 0.16)
+    else:
+        R = Rig(k, "enemy", lean=6, twist=8, head_pitch=6)
+        R.stance(-0.07, 0.07)
+    R.body(coat_len=0.03)
+    bone = C("#bdb59c")
+    mint = C(MINT, True)
+    with Group(R.T, name="vest"):
+        lathe("pmantle", [(0.2, 0.74), (0.34, 0.62), (0.4, 0.34), (0.35, 0.33), (0.19, 0.68)],
+              k.coat_dark, segs=30)
+        for s in (-1, 1):
+            box("pstole", (0.025, 0.08, 0.5), (0.2, s * 0.1, 0.36), bone, bevel=0.005,
+                outline=0.5)
+            box("pstole2", (0.025, 0.08, 0.6), (0.255, s * 0.11, -0.22), bone, rot=(0, -8, 0),
+                bevel=0.005, outline=0.5)
+            for z in (0.2, 0.45, -0.1, -0.35):
+                xx = 0.217 if z > 0.1 else 0.272 + (-0.22 - z) * 0.14 * -1
+                sphere("pdot", 0.022, (xx, s * 0.1, z), mint, outline=0.0)
+    with Group(R.H, name="head"):
+        R.mask(lens_hex="#d8d4c2")
+        hat = C("#1d1c1f")
+        with Group(M((-0.01, 0, 0.17), (0, -8, 0)), name="phat"):
+            lathe("pbrim", [(0.002, 0.0), (0.52, -0.01), (0.53, 0.025), (0.002, 0.03)], hat,
+                  segs=40)
+            dome("pcrown", 0.25, (0, 0, 0.02), hat, scale=(1.05, 1.0, 0.9))
+            lathe("pband", [(0.245, 0.02), (0.262, 0.02), (0.262, 0.07), (0.245, 0.07)],
+                  C("#3a3a36"), segs=30, outline=0.0)
+    sm_a = C("#c2dccd")
+    sm_b = C("#a7c9b6")
+    sm_g = C("#9af2c4")
+    chain_m = C("#4a4c46")
+    if att:
+        hn = Vector((0.36, -0.32, 1.62))
+        R.arm(-1, hn, pole=(-0.4, -0.8, -0.4))
+        cc = hn + Vector((0.3, -0.02, -0.18))
+    else:
+        hn = Vector((0.3, -0.36, 0.78))
+        R.arm(-1, hn, pole=(-0.3, -0.6, -1))
+        cc = hn + Vector((0.16, -0.02, -0.4))
+    R.arm(1, R.tp((0.2, 0.06, 0.32)), pole=(-0.4, 0.6, -1))
+    with Group(M(cc, (0, 0, 0)), name="censer"):
+        g = w_censer(k, hot=att)
+    top = cc + g["top"]
+    n = 7
+    for i in range(n + 1):
+        p = hn.lerp(top, i / n)
+        sphere("plink", 0.016, p, chain_m, scale=(1, 1, 1.4), outline=0.4)
+    rod("pchain", hn, top, 0.007, chain_m, verts=6, outline=0.0)
+    if att:
+        pts = [(cc + Vector((0.12, 0.0, 0.14)), 0.08), (cc + Vector((0.24, 0.04, 0.28)), 0.11),
+               (cc + Vector((0.12, 0.06, 0.42)), 0.13), (cc + Vector((0.3, 0.06, 0.5)), 0.12),
+               (cc + Vector((0.04, 0.08, 0.58)), 0.12), (cc + Vector((0.2, 0.1, 0.66)), 0.1),
+               (cc + Vector((-0.08, 0.1, 0.66)), 0.09), (cc + Vector((0.34, 0.02, 0.2)), 0.09),
+               (cc + Vector((0.02, 0.0, -0.14)), 0.07), (cc + Vector((0.18, 0.0, -0.1)), 0.08)]
+        smoke("psmoke", pts, [sm_a, sm_g, sm_b])
+    else:
+        pts = [(cc + Vector((0.06, 0.02, 0.26)), 0.065), (cc + Vector((0.2, 0.04, 0.4)), 0.09),
+               (cc + Vector((0.16, 0.06, 0.6)), 0.11), (cc + Vector((0.32, 0.08, 0.74)), 0.1),
+               (cc + Vector((0.3, 0.1, 0.92)), 0.075)]
+        smoke("psmoke", pts, [sm_a, sm_b, sm_g, sm_a])
+    return cc + g["centre"]
+
+
+def build_e_ghoul(pose):
+    skin_h = "#a5aa9d"
+    k = enemy_kit(coat="#62675d", coat_dark="#4f544b", trousers="#53574e", rubber=skin_h,
+                  hand=skin_h, boot="#2c2b27", helmet="#5a5f56", shin="#3a3a34")
+    att = pose == "attack"
+    skin, skin_d = C(skin_h), C("#8b9084")
+    rotten, socket = C("#3a3d37"), C("#262824")
+    eye = C(MINT, True)
+    if att:
+        R = Rig(k, "enemy", hip=(0.0, 0, 0.5), lean=30, twist=10, head_yaw=0, head_pitch=-14)
+        R.leg(-1, -0.32, pole=(1, 0, 0.2))
+        R.leg(1, 0.26, pole=(1, 0, 0.4))
+    else:
+        R = Rig(k, "enemy", hip=(-0.04, 0, 0.53), lean=14, twist=6, head_yaw=-4, head_pitch=16)
+        R.leg(-1, -0.14, pole=(1, 0, 0.3))
+        R.leg(1, 0.12, pitch=-10, pole=(1, 0.2, 0.3))
+    R.body(coat_len=0.28, coat_open=True)
+    # tattered hem and holes
+    for i, a in enumerate(range(50, 315, 24)):
+        ca, sa = math.cos(rad(a)), math.sin(rad(a))
+        p0 = R.hip * 0 + Vector((0.3 * ca, 0.35 * sa, 0.3))
+        rag("ghem", p0, (ca * 0.35, sa * 0.35, -1), 0.08 + 0.06 * (i % 3), 0.055, k.coat)
+    with Group(R.T, name="rot"):
+        for p, s in (((0.19, -0.12, 0.5), 0.06), ((0.12, -0.24, 0.26), 0.05),
+                     ((-0.05, -0.245, 0.48), 0.045)):
+            box("ghole", (0.02 if p[1] > -0.2 else s, s if p[1] > -0.2 else 0.02, s), p, rotten,
+                bevel=0.0, outline=0.0)
+    with Group(R.H, name="head"):
+        sphere("gskull", 0.26, (0, 0, 0), skin, scale=(0.95, 0.86, 1.05), segs=28, rings=14)
+        for az in (-30, 30):
+            sphere("gsock", 0.07, sph(0.225, az, 4), socket, scale=(0.7, 1.0, 0.9),
+                   rot=(0, 0, az), outline=0.0)
+            sphere("geye", 0.032, sph(0.265, az, 4), eye, outline=0.0)
+            sphere("gcheek", 0.05, sph(0.23, az * 1.2, -18), skin_d, scale=(0.6, 1, 0.6),
+                   outline=0.0)
+        sphere("gnose", 0.03, sph(0.255, -4, -10), socket, outline=0.0)
+        sphere("gear", 0.055, sph(0.24, -92, -6), skin, scale=(0.6, 1, 1), outline=0.5)
+        with Group(M((0.06, 0, -0.2), (0, 18 if att else 10, 0)), name="gjaw"):
+            box("gjawb", (0.24, 0.3, 0.1), (0.06, 0, -0.03), skin_d, bevel=0.04)
+            box("gteeth", (0.03, 0.18, 0.04), (0.17, 0, 0.03), C("#d8d0b4"), bevel=0.0,
+                outline=0.0)
+        box("gteethu", (0.03, 0.18, 0.04), sph(0.24, 0, -24) + Vector((-0.02, 0, 0)),
+            C("#d8d0b4"), bevel=0.0, outline=0.0)
+        with Group(M((-0.07, 0.04, 0.0), (14, -24, 6)), name="askew"):
+            R.enemy_helmet()
+            sphere("gdent", 0.045, (0.1, -0.31, 0.2), rotten, scale=(0.4, 1, 1), outline=0.0)
+    # long gangly arms: torn sleeves, bare forearms, clawed fingers
+    if att:
+        hands = {-1: Vector((0.96, -0.26, 1.3)), 1: Vector((0.84, 0.24, 1.46))}
+        poles = {-1: (-0.2, -0.6, -1), 1: (-0.2, 0.6, -1)}
+    else:
+        hands = {-1: Vector((0.64, -0.3, 1.02)), 1: Vector((0.58, 0.24, 1.14))}
+        poles = {-1: (-0.3, -0.6, -1), 1: (-0.3, 0.6, -1)}
+    tip = None
+    for s in (-1, 1):
+        S = R.shoulder(s)
+        H = hands[s]
+        E = ik(S, H, 0.33, 0.33, poles[s])
+        capsule("guarm", S, E, 0.09, 0.08, k.coat)
+        u = (E - S).normalized()
+        for a in (0, 130, 250):
+            off = Matrix.Rotation(rad(a), 3, u) @ u.orthogonal().normalized()
+            rag("gcuff", E + off * 0.07, u + off * 0.5, 0.1, 0.05, k.coat)
+        capsule("gfarm", E, H, 0.06, 0.05, skin)
+        sphere("ghand", 0.07, H, skin, scale=(1.2, 0.8, 1.0))
+        d = (H - E).normalized()
+        tips = claws("gfinger", H, d, (0, 0, 1), 4, 0.15, 0.02, skin_d, spread=0.035)
+        if s < 0:
+            tip = max(tips, key=lambda p: p.x)
+    return tip
+
+
+# --------------------------------------------------------------------------
 # the field tent (static)
 # --------------------------------------------------------------------------
 def build_tent(pose):
@@ -1349,6 +2113,8 @@ FIGS = {
     "sniper": build_sniper,
     "sapper": build_sapper,
     "veteran": build_veteran,
+    "shield": build_shield,
+    "bugler": build_bugler,
     "tent": build_tent,
     "e_rifleman": build_e_rifleman,
     "e_grenadier": build_e_grenadier,
@@ -1357,11 +2123,22 @@ FIGS = {
     "e_mortar": build_e_mortar,
     "e_officer": build_e_officer,
     "e_shock": build_e_shock,
+    "e_werewolf": build_e_werewolf,
+    "e_magus": build_e_magus,
+    "e_dwarf": build_e_dwarf,
+    "e_elf": build_e_elf,
+    "e_priest": build_e_priest,
+    "e_ghoul": build_e_ghoul,
 }
 ORDER = list(FIGS) + ["colossus"]
 STATIC = {"tent"}
-SCALE = {"e_shock": 1.1}
-GLOW = {"e_shock": (3.0, 0.85), "colossus": (9, 0.8)}
+NEW_FIGS = {"shield", "bugler", "e_werewolf", "e_magus", "e_dwarf", "e_elf", "e_priest",
+            "e_ghoul"}
+CLEAN = NEW_FIGS
+SCALE = {"e_shock": 1.1, "e_dwarf": 0.88, "e_elf": (0.96, 0.92, 1.07)}
+GLOW = {"e_shock": (3.0, 0.85), "colossus": (9, 0.8), "e_werewolf": (4.0, 1.0),
+        "e_magus": (4.5, 0.95), "e_dwarf": (2.0, 0.7), "e_elf": (1.6, 0.6),
+        "e_priest": (3.0, 0.8), "e_ghoul": (2.2, 0.85)}
 
 
 # --------------------------------------------------------------------------
@@ -1399,9 +2176,35 @@ def render_raw(sc, path):
     bpy.ops.render.render(write_still=True)
 
 
-def save_png(img, path, limit_kb):
+def png_nofilter(img):
+    """Lossless RGBA PNG with filter type 0 on every row.  Flat toon art packs
+    ~10% smaller this way than with Pillow's adaptive filters."""
+    import zlib
+    img = img.convert("RGBA")
+    W, H = img.size
+    raw = img.tobytes()
+    st = W * 4
+    data = b"".join(b"\x00" + raw[y * st:(y + 1) * st] for y in range(H))
+    co = zlib.compressobj(9, zlib.DEFLATED, 15, 9, zlib.Z_FILTERED)
+    z = min(co.compress(data) + co.flush(), zlib.compress(data, 9), key=len)
+
+    def chunk(t, d):
+        return (len(d).to_bytes(4, "big") + t + d +
+                (zlib.crc32(t + d) & 0xFFFFFFFF).to_bytes(4, "big"))
+    ihdr = W.to_bytes(4, "big") + H.to_bytes(4, "big") + bytes([8, 6, 0, 0, 0])
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) + chunk(b"IDAT", z) + chunk(b"IEND", b"")
+
+
+def save_png(img, path, limit_kb, compact=False):
     img.save(path, optimize=True)
+    if compact:
+        alt = png_nofilter(img)
+        if len(alt) < os.path.getsize(path):
+            with open(path, "wb") as f:
+                f.write(alt)
     if os.path.getsize(path) > limit_kb * 1024:
+        print(f"[units] {os.path.basename(path)}: {os.path.getsize(path) // 1024} KB RGBA, "
+              f"quantizing", flush=True)
         q = img.quantize(colors=256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)
         q.save(path, optimize=True)
 
@@ -1431,12 +2234,16 @@ def render_figure(name, pose, tmp):
     if abs(shift) > 8:
         print(f"[units] WARNING {name}_{pose}: baseline shift {shift}px", flush=True)
     out = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+    if name in CLEAN:
+        # drop the bloom's invisible mint RGB under alpha 0 (smaller PNG, same look)
+        img = Image.composite(img, Image.new("RGBA", img.size, (0, 0, 0, 0)),
+                              img.split()[3].point(lambda v: 255 if v else 0))
     out.paste(img, (0, shift))
     bb2 = out.split()[3].point(lambda v: 255 if v > 10 else 0).getbbox()
     if bb2 and (bb2[0] <= 0 or bb2[1] <= 0 or bb2[2] >= cw):
         print(f"[units] WARNING {name}_{pose}: touches the canvas edge {bb2}", flush=True)
     fn = f"{name}_{pose}.png"
-    save_png(out, os.path.join(OUT_DIR, fn), 78 if name == "tent" else 39)
+    save_png(out, os.path.join(OUT_DIR, fn), 78 if name == "tent" else 39, compact=name in CLEAN)
     muzzle = None
     if mz is not None:
         u, v = project(sc, cam, root_m @ Vector(mz))
