@@ -926,7 +926,8 @@ class MapBuilder:
         def overlaps(bb):
             return not (bb[2] < gb[0] or bb[0] > gb[2] or bb[3] < gb[1] or bb[1] > gb[3])
 
-        self.land = []        # [(outer, [holes])] in world coords
+        self.land = []        # clipped [(outer, [holes])] in world coords (texture)
+        self.land_full = []   # unclipped rings (mesh: triangulate, then clip tris)
         for f in load_geo("ne_50m_land")["features"]:
             for poly in iter_polys(f["geometry"]):
                 if not overlaps(ring_bbox(poly[0])):
@@ -937,6 +938,8 @@ class MapBuilder:
                 holes = [clip_ring(h, gb) for h in poly[1:]]
                 self.land.append(([self.proj(*p) for p in outer],
                                   [[self.proj(*p) for p in h] for h in holes if len(h) >= 3]))
+                full = [self.proj(*p[:2]) for p in poly[0][:-1]]
+                self.land_full.append((full, [[self.proj(*p[:2]) for p in h[:-1]] for h in poly[1:]]))
         lakes = []
         for f in load_geo("ne_50m_lakes")["features"]:
             for poly in iter_polys(f["geometry"]):
@@ -953,6 +956,7 @@ class MapBuilder:
             for i, (outer, holes) in enumerate(self.land):
                 if point_in_ring(lk[0], outer):
                     holes.append(lk)
+                    self.land_full[i][1].append(lk)
                     break
         # countries: shared edges = land borders; also per-country polygons
         feats = load_geo("ne_50m_admin_0_countries")["features"]
@@ -1202,50 +1206,64 @@ class MapBuilder:
         me.materials.append(top)
         place(me, "board", outline=0)
 
-        # land: one mesh, top triangles + walls
+        # land: one mesh, top triangles + walls.  Triangulate the unclipped
+        # polygons (exact), then clip each triangle to the board.
         bm = bmesh.new()
         uvl = bm.loops.layers.uv.new("UVMap")
         nfaces = 0
-        for outer, holes in self.land:
-            rings = [outer] + holes
-            rings = [r for r in rings if len(r) >= 3]
-            # orientation: outer CCW, holes CW
+        box = (x0, y0, x1, y1)
+
+        def inside(p):
+            return x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+
+        def add_face(pts, z, mi):
+            nonlocal nfaces
+            if len(pts) < 3:
+                return
+            if signed_area(pts) < 0:
+                pts = pts[::-1]
+            vs = [bm.verts.new((px, py, z)) for px, py in pts]
+            try:
+                fc = bm.faces.new(vs)
+                fc.material_index = mi
+                nfaces += 1
+            except ValueError:
+                pass
+
+        for outer, holes in self.land_full:
+            rings = [r for r in [outer] + holes if len(r) >= 3]
             fixed = []
             for i, r in enumerate(rings):
-                a = signed_area(r)
-                if (i == 0) != (a > 0):
+                if (i == 0) != (signed_area(r) > 0):
                     r = r[::-1]
                 fixed.append(r)
-            try:
-                tris = tessellate_polygon([[Vector((x, y, 0)) for x, y in r] for r in fixed])
-            except Exception as e:
-                print("[maps] tessellate failed", e)
+            fixed, tris = robust_tessellate(fixed)
+            if not tris:
                 continue
             flat = [p for r in fixed for p in r]
-            tv = [bm.verts.new((x, y, h)) for x, y in flat]
             for t in tris:
-                a, b, c = (flat[i] for i in t)
-                if (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]) < 0:
-                    t = (t[0], t[2], t[1])
-                try:
-                    fc = bm.faces.new([tv[i] for i in t])
-                except ValueError:
-                    continue
-                fc.material_index = 0
-                nfaces += 1
-            off = 0
+                tri = [flat[i] for i in t]
+                if all(inside(p) for p in tri):
+                    add_face(tri, h, 0)
+                else:
+                    xs = [p[0] for p in tri]
+                    ys = [p[1] for p in tri]
+                    if max(xs) < x0 or min(xs) > x1 or max(ys) < y0 or min(ys) > y1:
+                        continue
+                    add_face(clip_ring(tri + [tri[0]], box), h, 0)
             for r in fixed:
                 n = len(r)
-                bot = [bm.verts.new((x, y, 0)) for x, y in r]
                 for i in range(n):
-                    j = (i + 1) % n
-                    ta, tb = tv[off + i], tv[off + j]
+                    a_, b_ = r[i], r[(i + 1) % n]
+                    if not (inside(a_) and inside(b_)):
+                        continue
+                    vs = [bm.verts.new((a_[0], a_[1], 0)), bm.verts.new((b_[0], b_[1], 0)),
+                          bm.verts.new((b_[0], b_[1], h)), bm.verts.new((a_[0], a_[1], h))]
                     try:
-                        fc = bm.faces.new((bot[i], bot[j], tb, ta))
+                        fc = bm.faces.new(vs)
                         fc.material_index = 1
                     except ValueError:
                         pass
-                off += n
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
         for fc in bm.faces:
             for lp in fc.loops:
@@ -1324,6 +1342,53 @@ class MapBuilder:
         print(f"[maps] {self.rid}: city fx {min(fx):.3f}..{max(fx):.3f} "
               f"fy {min(fy):.3f}..{max(fy):.3f}", flush=True)
         return {"file": f"{self.rid}.jpg", "w": MAP_W, "h": MAP_H, "cities": cities}
+
+
+def _tri_area(flat, tris):
+    a = 0.0
+    for t in tris:
+        p, q, r = flat[t[0]], flat[t[1]], flat[t[2]]
+        a += abs((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])) / 2
+    return a
+
+
+def _tess(rings):
+    try:
+        tris = tessellate_polygon([[Vector((x, y, 0)) for x, y in r] for r in rings])
+    except Exception:
+        return None
+    flat = [p for r in rings for p in r]
+    want = abs(signed_area(rings[0])) - sum(abs(signed_area(r)) for r in rings[1:])
+    if abs(_tri_area(flat, tris) - want) > 0.004 * max(want, 1e-6) + 1e-6:
+        return None
+    return tris
+
+
+def robust_tessellate(rings):
+    """Scanfill the outer ring plus as many holes as triangulate cleanly.
+    Holes that touch each other or the coast break scanfill; those lakes
+    are dropped from the mesh (they stay painted on the land texture)."""
+    outer, holes = rings[0], sorted(rings[1:], key=lambda r: -abs(signed_area(r)))
+    keep = []
+    tris = _tess([outer])
+    if tris is None:
+        return [outer], []
+    for hl in holes:
+        for shrink in (1.0, 0.995, 0.985):
+            if shrink < 1.0:
+                cx = sum(p[0] for p in hl) / len(hl)
+                cy = sum(p[1] for p in hl) / len(hl)
+                cand = [(cx + (x - cx) * shrink, cy + (y - cy) * shrink) for x, y in hl]
+            else:
+                cand = hl
+            t = _tess([outer] + keep + [cand])
+            if t is not None:
+                keep.append(cand)
+                tris = t
+                break
+    if len(keep) < len(holes):
+        print(f"[maps]   {len(holes) - len(keep)} of {len(holes)} lake holes left flat", flush=True)
+    return [outer] + keep, tris
 
 
 def chain_edges(edges):
@@ -2165,10 +2230,11 @@ def scene_us_city(rnd):
         strip_mesh("lane", [(x, 12.5, 0), (x + 3, 12.5, 0)], 0.18, line, z=0.015)
     cracks = ground_mat("g_crack", "#45433f", patch_scale=1.0)
     for i in range(14):
-        x0, y0 = rnd.uniform(-20, 20), rnd.uniform(8, 17)
+        x0, y0 = rnd.uniform(-20, 20), rnd.uniform(9, 16)
         pts = [(x0, y0, 0)]
         for k in range(5):
-            pts.append((pts[-1][0] + rnd.uniform(0.4, 1.0), pts[-1][1] + rnd.uniform(-0.5, 0.5), 0))
+            pts.append((pts[-1][0] + rnd.uniform(0.4, 1.0),
+                        min(17.5, max(8.5, pts[-1][1] + rnd.uniform(-0.5, 0.5))), 0))
         strip_mesh("crack", pts, 0.06, cracks, z=0.012)
     mats = [M("#8c4a36", patches=[(0.42, "#84452f"), (0.68, "#934f3a")], patch_scale=3.5),
             M("#9a5a42", patches=[(0.55, "#91533d")], patch_scale=3.5),
@@ -2656,7 +2722,7 @@ BACKDROPS = {
                         sky=[(0.0, "#58706a"), (0.35, "#93a497"), (0.6, "#c3c9b4")],
                         clouds=[(0.06, 0.3, 7, 0.24, (120, 138, 128), (190, 200, 184), 0.6)],
                         haze=("#b4beab", 18, 650, 0.93, 0.5), key=(-0.55, -0.45, 0.65),
-                        mist=(0.4, 0.62, "#c8cebb", 0.32)),
+                        mist=(0.36, 0.58, "#c8cebb", 0.32)),
     "asia_snow": dict(build=scene_asia_snow, seed=13, push=(19.0, 12.0),
                       sky=[(0.0, "#4d5a6e"), (0.35, "#8492a3"), (0.6, "#bcc6cf")],
                       clouds=[(0.04, 0.3, 9, 0.24, (98, 110, 128), (170, 180, 192), 0.8)],

@@ -555,14 +555,14 @@ G.battle = (() => {
     }
   }
   function drawUnit(u, now, t) {
-    const hurt = u.hurtT && now - u.hurtT < 120;
+    const hurt = u.hurtT && now - u.hurtT < 80;
     if (u.vehicle) {
       let alpha = 1;
       if (u.dead) { const age = (now - u.deadT) / 800; if (age > 1) return; alpha = 1 - age; }
       ctx.save();
       if (u.occult && !u.dead) { ctx.shadowColor = '#6dffb4'; ctx.shadowBlur = 16 + 8 * Math.sin(t * 2); }
       const casting = u.cast ? `rgba(255,90,60,${0.18 + 0.15 * Math.sin(now / 60)})` : null;
-      G.art.drawUnit(ctx, { side: 'enemy', art: u.art }, u.x, u.y, u.s, { t, alpha, flash: u.atkPoseT && B.t - u.atkPoseT < 0.08, tint: hurt ? 'rgba(255,255,255,0.45)' : casting });
+      G.art.drawUnit(ctx, { side: 'enemy', art: u.art }, u.x, u.y, u.s, { t, alpha, flash: u.atkPoseT && B.t - u.atkPoseT < 0.08, tint: hurt ? 'rgba(255,255,255,0.14)' : casting });
       ctx.restore();
       return;
     }
@@ -584,7 +584,7 @@ G.battle = (() => {
       const bob = pose === 'idle' ? Math.sin(t * 2.2 + f.ph) * 1.2 : 0;
       const casting = u.cast ? `rgba(255,90,60,${0.2 + 0.15 * Math.sin(now / 60)})` : null;
       const broken = u.brokenUntil > B.t;
-      G.art.drawFigure(ctx, u.figure, pose, u.x + f.dx * dir, u.y + f.dy + bob, u.s, { flip: dir < 0, alpha, tint: hurt ? 'rgba(255,255,255,0.5)' : casting || (broken ? 'rgba(255,240,150,0.25)' : null), glow: u.occult, t: t + f.ph });
+      G.art.drawFigure(ctx, u.figure, pose, u.x + f.dx * dir, u.y + f.dy + bob, u.s, { flip: dir < 0, alpha, tint: hurt ? 'rgba(255,255,255,0.25)' : casting || (broken ? 'rgba(255,240,150,0.25)' : null), glow: u.occult, t: t + f.ph });
     }
   }
   function bars(u, t) {
