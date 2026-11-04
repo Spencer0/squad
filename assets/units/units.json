@@ -1,0 +1,179 @@
+{
+  "rifleman": {
+    "idle": "rifleman_idle.png",
+    "attack": "rifleman_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8522,
+      0.4978
+    ]
+  },
+  "mg": {
+    "idle": "mg_idle.png",
+    "attack": "mg_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8767,
+      0.6394
+    ]
+  },
+  "medic": {
+    "idle": "medic_idle.png",
+    "attack": "medic_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.6685,
+      0.8946
+    ]
+  },
+  "sniper": {
+    "idle": "sniper_idle.png",
+    "attack": "sniper_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8876,
+      0.5076
+    ]
+  },
+  "sapper": {
+    "idle": "sapper_idle.png",
+    "attack": "sapper_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.2898,
+      0.3731
+    ]
+  },
+  "veteran": {
+    "idle": "veteran_idle.png",
+    "attack": "veteran_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.7743,
+      0.4934
+    ]
+  },
+  "tent": {
+    "idle": "tent_idle.png",
+    "attack": null,
+    "canvas": [
+      512,
+      256
+    ],
+    "muzzle": null
+  },
+  "e_rifleman": {
+    "idle": "e_rifleman_idle.png",
+    "attack": "e_rifleman_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8522,
+      0.4978
+    ]
+  },
+  "e_grenadier": {
+    "idle": "e_grenadier_idle.png",
+    "attack": "e_grenadier_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.2898,
+      0.3808
+    ]
+  },
+  "e_flamer": {
+    "idle": "e_flamer_idle.png",
+    "attack": "e_flamer_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.7725,
+      0.6452
+    ]
+  },
+  "e_ski": {
+    "idle": "e_ski_idle.png",
+    "attack": "e_ski_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.7743,
+      0.472
+    ]
+  },
+  "e_mortar": {
+    "idle": "e_mortar_idle.png",
+    "attack": "e_mortar_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.8083,
+      0.6953
+    ]
+  },
+  "e_officer": {
+    "idle": "e_officer_idle.png",
+    "attack": "e_officer_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.691,
+      0.4925
+    ]
+  },
+  "e_shock": {
+    "idle": "e_shock_idle.png",
+    "attack": "e_shock_attack.png",
+    "canvas": [
+      256,
+      256
+    ],
+    "muzzle": [
+      0.1018,
+      0.1927
+    ]
+  },
+  "colossus": {
+    "idle": "colossus_idle.png",
+    "attack": null,
+    "canvas": [
+      408,
+      640
+    ],
+    "muzzle": [
+      0.9356,
+      0.4826
+    ]
+  }
+}

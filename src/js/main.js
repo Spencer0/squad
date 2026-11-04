@@ -1,25 +1,18 @@
-// Run flow: base -> deploy -> map -> nodes -> boss -> results -> base.
+// Run flow: base -> muster -> world map -> cities -> capital -> results -> base.
 G.clock = { t: G.now() };
-G.tickClock = () => {
-  const n = G.now();
-  if (G.run) G.run.timeMs += n - G.clock.t;
-  G.clock.t = n;
-};
+G.tickClock = () => { const n = G.now(); if (G.run) G.run.timeMs += n - G.clock.t; G.clock.t = n; };
 
-G.startRun = async (chId, heat, squad) => {
-  G.newRun(chId, heat, squad);
+G.startRun = async (chId, heat, army, heroId) => {
+  G.newRun(chId, heat, army, heroId);
   G.clock.t = G.now();
   G.renderMapScreen();
+  G.renderMap(() => {});
   await G.dialog(G.chapter().story.start);
   if (G.has('cmd_promo')) await G.draft({ kind: 'common', title: 'Field Promotion', eyebrow: 'Start of chapter · pick a Common boon', noSkip: true });
   G.saveAll();
   G.mapLoop();
 };
-G.resumeRun = () => {
-  G.recalc();
-  G.clock.t = G.now();
-  G.mapLoop();
-};
+G.resumeRun = () => { G.recalc(); G.clock.t = G.now(); G.mapLoop(); };
 
 G.renderMapScreen = () => {
   const run = G.run;
@@ -29,22 +22,20 @@ G.renderMapScreen = () => {
   G.$('#map-name').textContent = ch.name;
   const stats = G.$('#map-stats');
   stats.innerHTML = '';
-  const xpNeed = D.config.rewards.xpPerLevel;
   stats.append(
     G.el('span', { class: 'chip' }, 'Gold ', G.el('b', { text: String(run.gold) })),
-    G.el('span', { class: 'chip' }, `Lv ${run.level} `, G.el('b', { text: `${run.xp % xpNeed}/${xpNeed}` })),
-    G.el('button', { class: 'chip', type: 'button', onclick: () => G.showBuild() }, 'Boons ', G.el('b', { text: String(run.boons.length) }))
+    G.el('span', { class: 'chip' }, 'Cap ', G.el('b', { text: `${G.armyCap()}` })),
+    G.el('button', { class: 'chip', type: 'button', onclick: () => G.showBuild() }, 'Army ', G.el('b', { text: String(run.army.length) }), ' · Boons ', G.el('b', { text: String(run.boons.length) }))
   );
   G.$('#map-menu').onclick = () => G.showRunMenu();
   const foot = G.$('#map-foot');
   foot.innerHTML = '';
-  run.squad.forEach((s, i) => {
-    const hp = Math.round(Math.max(0, s.frac) * G.maxHp(s.cls));
-    foot.append(G.el('div', { class: 'mini-sq', title: D.classes[s.cls].name },
-      G.el('img', { src: G.art.portrait({ side: 'ally', cls: s.cls, art: 'soldier' }, 64), alt: '' }),
-      G.el('div', {}, G.el('div', { text: `${D.classes[s.cls].name}${i >= 3 ? ' (R)' : ''}` }), G.el('div', { class: 'mini-hp' }, G.el('i', { style: { width: `${Math.max(0, s.frac) * 100}%`, background: s.frac < 0.35 ? 'var(--bad)' : '' } })), G.el('small', { class: 'muted', text: `${hp} HP` }))));
-  });
-  foot.append(G.el('div', { class: 'map-hint', text: 'Tap a circled node to move there.' }));
+  const entries = [...(run.hero ? [{ hero: true, figure: D.heroes[run.hero.id].figure, name: D.heroes[run.hero.id].name, frac: run.hero.frac, tag: `Lv ${G.heroLevel(run.hero.id)}` }] : []),
+    ...run.army.map((sq) => ({ figure: D.units[sq.type].figure, name: D.units[sq.type].name, frac: sq.frac, tag: '★'.repeat(G.vetRank(sq.xp)) }))];
+  entries.forEach((e) => foot.append(G.el('div', { class: `mini-sq ${e.hero ? 'hero' : ''}`, title: e.name },
+    G.el('img', { src: G.art.figPortrait(e.figure, 64), alt: '' }),
+    G.el('div', {}, G.el('div', { text: `${e.name} ${e.tag}` }), G.el('div', { class: 'mini-hp' }, G.el('i', { style: { width: `${Math.max(0, e.frac) * 100}%`, background: e.frac < 0.35 ? 'var(--bad)' : '' } }))))));
+  foot.append(G.el('div', { class: 'map-hint', text: 'Tap a glowing city to move there.' }));
 };
 
 G.mapLoop = () => {
@@ -63,7 +54,7 @@ G.showRunMenu = () => G.openModal((card) => {
   card.append(
     G.el('h2', { text: 'Operation menu' }),
     G.el('div', { class: 'rows' },
-      G.el('button', { class: 'btn', type: 'button', onclick: () => G.showBuild() }, 'View build'),
+      G.el('button', { class: 'btn', type: 'button', onclick: () => G.showBuild() }, 'Army & build'),
       G.el('button', { class: 'btn', type: 'button', onclick: () => G.showHowTo() }, 'How to play'),
       G.el('button', { class: 'btn', type: 'button', onclick: () => G.showSettings() }, 'Settings'),
       G.el('button', { class: 'btn ghost', type: 'button', onclick: () => (confirmBox.hidden = false) }, 'Abandon operation')),
@@ -78,8 +69,7 @@ G.visitNode = async (id) => {
     const run = G.run;
     run.node = id;
     run.visited.push(id);
-    G.tickClock();
-    G.saveAll();
+    G.tickClock(); G.saveAll();
     const n = run.map.nodes[id];
     let ended = false;
     if (['skirmish', 'elite', 'miniboss', 'boss'].includes(n.type)) ended = await G.fightNode(n, n.type);
@@ -87,8 +77,8 @@ G.visitNode = async (id) => {
       const r = await G.intel();
       if (r.fight) ended = await G.fightNode(n, r.fight, { noDraft: !!r.boon });
       if (!ended && r.boon) {
-        if (r.boon === 'relic') { const b = G.pick(D.boons.boons.filter((x) => G.boonEligible(x, 'relic'))); if (b) { G.addBoon(b.id); G.toast(`Gained ${b.name}`); } }
-        else if (r.boon === 'curse') { const b = G.pick(D.boons.boons.filter((x) => G.boonEligible(x, 'curse'))); if (b) { G.addBoon(b.id); G.toast(`Gained ${b.name}`); } }
+        const kind = r.boon === 'relic' || r.boon === 'curse' ? r.boon : null;
+        if (kind) { const b = G.pick(D.boons.boons.filter((x) => G.boonEligible(x, kind))); if (b) { G.addBoon(b.id); G.toast(`Gained ${b.name}`); } }
         else await G.draft({ guaranteeRare: true, eyebrow: 'A gift · guaranteed Rare' });
       }
     } else if (n.type === 'supply') await G.shop();
@@ -99,9 +89,16 @@ G.visitNode = async (id) => {
   } catch (err) {
     G._visiting = false;
     console.error(err);
+    if (G.testMode) G.testLog.push({ error: String(err && err.stack || err) });
     G.toast('Something went wrong. Returning to the map.');
     if (G.run) G.mapLoop();
   }
+};
+
+G.pickBg = (ch, n, type) => {
+  if (type === 'boss') return ch.bgs.boss;
+  if (ch.bgs.north && n.tier >= ch.bgs.northFromTier) return G.pick(ch.bgs.north);
+  return G.pick(ch.bgs.default);
 };
 
 // returns true when the run ended
@@ -112,28 +109,54 @@ G.fightNode = async (n, type, opts = {}) => {
   if (type === 'boss') enemies = enc.boss;
   else if (type === 'miniboss') enemies = enc.miniboss;
   else if (type === 'elite') enemies = G.pick(enc.elite);
-  else enemies = G.pick(n.row <= 4 ? enc.early : enc.late);
+  else enemies = G.pick(n.tier <= 3 ? enc.early : enc.late);
   if (type === 'miniboss') await G.dialog(ch.story.mid);
   if (type === 'boss') await G.dialog(ch.story.end);
-  const res = await G.battle.run({ enemies, row: n.row, bg: type === 'boss' ? ch.bossBg : undefined, title: type === 'elite' ? 'Elite squad!' : type === 'miniboss' ? 'Strongpoint' : 'Contact!' });
+  const title = `${n.name}${type === 'elite' ? ' · Elite force' : type === 'miniboss' ? ' · Strongpoint' : type === 'boss' ? ' · Objective' : ''}`;
+  const army = await G.deployScreen(enemies, title);
+  const res = await G.battle.run({ enemies, tier: n.tier, army, bg: G.pickBg(ch, n, type), title });
   G.tickClock();
-  if (res !== 'win') { await G.endRun(false); return true; }
+  // write back HP, XP and ranks
+  const V = D.config.veterancy, HC = D.config.heroes;
+  const lines = [];
+  for (const u of res.units) {
+    if (u.isHero) {
+      G.run.hero.frac = u.dead ? (res.result === 'win' ? D.config.combat.reviveFrac : 0) : u.frac;
+      if (res.result === 'win') {
+        const xp = HC.xpPerBattle + u.kills * HC.xpPerKill;
+        const up = G.giveHeroXp(xp);
+        const h = D.heroes[G.run.hero.id];
+        lines.push({ figure: h.figure, name: h.name, right: `+${xp} XP`, up: up ? `Level ${G.heroLevel(G.run.hero.id)}!` : '', text: up ? 'Hero level up. Their level is permanent.' : `${u.kills} kills` });
+      }
+      continue;
+    }
+    const sq = u.ref;
+    const d = D.units[sq.type];
+    if (u.dead) {
+      sq.frac = res.result === 'win' ? D.config.combat.reviveFrac : 0;
+      const r = G.vetRank(sq.xp);
+      if (r > 0) sq.xp = V.xp[Math.max(0, r - V.rankLossOnWipe)];
+      lines.push({ figure: d.figure, name: d.name, right: 'Wiped', up: '', text: r > 0 ? `Reinforced at low strength. Dropped to ${G.vetName(sq.xp)}.` : 'Reinforced at low strength.' });
+    } else {
+      sq.frac = u.frac;
+      if (res.result === 'win') {
+        const xp = V.xpPerBattle + u.kills * V.xpPerKill;
+        const up = G.giveXp(sq, xp);
+        lines.push({ figure: d.figure, name: d.name, right: `+${xp} XP`, up: up ? `${G.vetName(sq.xp)}!` : '', text: up ? 'Ranked up: more HP and damage.' : `${u.kills} kills · ${Math.round(sq.frac * 100)}% HP` });
+      }
+    }
+  }
+  if (res.result !== 'win') { await G.endRun(false); return true; }
   const rw = D.config.rewards[type] || D.config.rewards.skirmish;
   const gold = Math.round(G.ri(rw.gold[0], rw.gold[1]));
   G.run.gold += gold;
   G.run.earned += rw.points;
   G.run.stats.fights++;
   if (type === 'boss') { await G.endRun(true); return true; }
-  const before = Math.floor(G.run.xp / D.config.rewards.xpPerLevel);
-  G.run.xp += rw.xp;
-  const after = Math.floor(G.run.xp / D.config.rewards.xpPerLevel);
   G.renderMapScreen();
   G.renderMap(() => {});
+  if (lines.some((l) => l.up)) await G.showAfterAction(lines);
   if (!opts.noDraft) await G.draft({ guaranteeRare: type !== 'skirmish', eyebrow: `Victory · +${gold} gold · +${rw.points} meta-points`, title: type === 'skirmish' ? 'Choose a boon' : 'Choose a boon · Rare guaranteed' });
-  for (let i = before; i < after; i++) {
-    G.run.level++;
-    await G.draft({ kind: 'stat', title: `Level ${G.run.level}`, eyebrow: 'Level up · stat card', noSkip: true });
-  }
   return false;
 };
 
@@ -145,87 +168,93 @@ G.endRun = async (win) => {
   const R = D.config.rewards;
   const lines = [];
   let total;
+  const capBefore = G.armyCap();
   if (win) {
     const base = run.earned;
-    lines.push(['Fights and events', `${base}`]);
-    lines.push(['Chapter clear', `${R.clearBonus}`]);
+    lines.push(['Battles and events', `${base}`]);
+    lines.push(['Capital taken', `${R.clearBonus}`]);
     let sub = base + R.clearBonus;
-    const perf = Math.floor(run.stats.perfects / R.perfectsPerPoint);
-    if (perf) { lines.push([`Perfects (${run.stats.perfects})`, `${perf}`]); sub += perf; }
-    if (run.stats.downs === 0) { const nd = Math.round(sub * R.noDeathPct); lines.push(['Nobody went down', `${nd}`]); sub += nd; }
+    if (run.stats.wipes === 0) { const nd = Math.round(sub * R.noWipePct); lines.push(['No squad wiped', `${nd}`]); sub += nd; }
     if (run.timeMs < R.speedBonusMinutes * 60000) { const sp = Math.round(sub * R.speedBonusPct); lines.push([`Under ${R.speedBonusMinutes} minutes`, `${sp}`]); sub += sp; }
     if (run.heat) { const hb = Math.round(sub * run.heat * R.heatPointsPct); lines.push([`Heat ${run.heat}`, `${hb}`]); sub += hb; }
     total = sub;
     G.meta.cleared[ch.id] = true;
     G.meta.heatCleared[ch.id] = Math.max(G.meta.heatCleared[ch.id] ?? -1, run.heat || 0);
     G.meta.clears++;
+    if (run.hero) G.giveHeroXp(D.config.heroes.xpClear);
   } else {
     lines.push(['Points earned this run', `${run.earned}`]);
     lines.push([`Banked on a loss (${G.pct(R.deathBankPct)})`, '']);
     total = run.earned > 0 ? Math.max(1, Math.round(run.earned * R.deathBankPct)) : 0;
   }
   G.meta.points += total;
-  const summary = { win, chapterId: ch.id, heat: run.heat, lines, total, stats: run.stats, timeMs: run.timeMs };
-  const squad = run.squad.map((s) => s.cls);
+  const next = D.chapters.find((c) => c.unlockAfter === ch.id);
+  const summary = { win, chapterId: ch.id, heat: run.heat, lines, total, stats: run.stats, timeMs: run.timeMs, hero: run.hero && run.hero.id, heroXp: run.hero ? run.hero.xpEarned || 0 : 0,
+    capUp: G.armyCap() > capBefore, unlockText: win && next && G.armyCap() > capBefore ? `${next.place} is now open.` : '' };
+  const army = run.army.map((s) => s.type), hero = run.hero && run.hero.id;
   G.run = null;
   G.recalc();
   G.saveAll();
-  if (win) { G.renderMapScreen && G.show('map'); await G.dialog(ch.story.win); }
+  if (win) await G.dialog(ch.story.win);
   G.lastResult = summary;
   const choice = await G.showResults(summary);
-  if (choice === 'retry') G.startRun(ch.id, summary.heat, squad);
+  if (choice === 'retry') G.startRun(ch.id, summary.heat, (G.meta.lastArmy || army), hero);
   else G.showBase();
 };
 
-// ---------- boot ----------
+// ---------- assets (Blender renders inlined by build.mjs) ----------
+G.loadAssets = (cb) => {
+  const A = D.assets || {};
+  const jobs = [];
+  const load = (src, set) => jobs.push(new Promise((r) => { const img = new Image(); img.onload = () => { set(img); r(); }; img.onerror = r; img.src = src; }));
+  G.art.sprites = {};
+  for (const [k, s] of Object.entries(D.sprites || {})) load(s.src, (img) => (G.art.sprites[k] = { img, ...s }));
+  G.art.units = {};
+  for (const [k, u] of Object.entries(A.units || {})) {
+    G.art.units[k] = { canvas: u.canvas, muzzle: u.muzzle };
+    if (u.idle) load(u.idle, (img) => (G.art.units[k].idleImg = img));
+    if (u.attack) load(u.attack, (img) => (G.art.units[k].attackImg = img));
+  }
+  G.art.bgImgs = {};
+  for (const [k, src] of Object.entries((A.bg && A.bg.files) || {})) load(src, (img) => (G.art.bgImgs[k] = img));
+  let done = false;
+  const fin = () => { if (!done) { done = true; cb(); } };
+  Promise.all(jobs).then(fin);
+  setTimeout(fin, 6000);
+};
+
 G.boot = () => {
   G.testMode = location.hash === '#autotest';
-  if (G.testMode) G.testDefense = () => G.weighted(['parry', 'dodge', 'hit'], (r) => ({ parry: 1, dodge: 4, hit: 3 }[r]));
   G.loadAll();
   if (G.testMode) { G.meta = G.defaultMeta(); G.run = null; G.applySettings(); }
   G.recalc();
   document.addEventListener('pointerdown', () => G.audio.unlock(), { passive: true });
   window.addEventListener('pagehide', () => { G.tickClock(); G.saveAll(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) { G.tickClock(); G.saveAll(); } else G.clock.t = G.now(); });
-  G.loadSprites(() => {
-    G.showTitle();
-    if (G.testMode) G.autotest();
-  });
+  G.loadAssets(() => { G.showTitle(); if (G.testMode) G.autotest(); });
 };
 
-// sprites pre-rendered in Blender (optional; procedural art is the fallback)
-G.loadSprites = (cb) => {
-  const list = Object.entries(D.sprites || {});
-  if (!list.length) { cb(); return; }
-  let left = list.length;
-  const fin = () => { if (--left <= 0) cb(); };
-  G.art.sprites = {};
-  for (const [k, s] of list) {
-    const img = new Image();
-    img.onload = () => { G.art.sprites[k] = { img, ...s }; fin(); };
-    img.onerror = fin;
-    img.src = s.src;
-  }
-  setTimeout(() => { if (left > 0) { left = 0; cb(); } }, 4000);
-};
-
-// headless smoke test: plays full runs with a bot (open the page with #autotest)
+// headless smoke test: open the page with #autotest and a bot plays full chapters
 G.autotest = async () => {
   G.testLog = [];
   G.testDone = false;
   try {
-    for (let i = 0; i < (G.testRuns || 3); i++) {
-      const chId = D.chapters[i % D.chapters.length].id;
-      G.meta.cleared.hedgerow = true;
+    const plan = G.testPlan || ['na', 'eu', 'asia'];
+    for (const chId of plan) {
       const done = new Promise((r) => (G._testRunDone = r));
       const origEnd = G.endRun;
-      G.endRun = async (win) => { G.testLog.push({ chapter: chId, win, fights: G.run.stats.fights, boons: G.run.boons.length, level: G.run.level, gold: G.run.gold, visited: G.run.visited.length }); await origEnd(win); G.endRun = origEnd; G._testRunDone(); };
-      G.startRun(chId, 0, ['rifleman', 'mg', 'medic', 'sniper']);
+      G.endRun = async (win) => {
+        G.testLog.push({ chapter: chId, win, fights: G.run.stats.fights, kills: G.run.stats.kills, wipes: G.run.stats.wipes, rankUps: G.run.stats.rankUps, army: G.run.army.length, boons: G.run.boons.length, gold: G.run.gold, visited: G.run.visited.length, minutes: +(G.run.timeMs / 60000).toFixed(1), heroLv: G.run.hero && G.heroLevel(G.run.hero.id) });
+        await origEnd(win); G.endRun = origEnd; G._testRunDone();
+      };
+      const cap = G.armyCap();
+      const army = [];
+      const types = ['rifle', 'mg', 'sapper', 'medic', 'rifle', 'sapper', 'mg'];
+      for (const t of types) if (G.armyCost(army.map((type) => ({ type }))) + D.units[t].cost <= cap) army.push(t);
+      G.startRun(chId, 0, army, 'okafor');
       await done;
     }
-  } catch (e) {
-    G.testLog.push({ error: String(e && e.stack || e) });
-  }
+  } catch (e) { G.testLog.push({ error: String(e && e.stack || e) }); }
   G.testDone = true;
 };
 
@@ -235,3 +264,12 @@ if (document.fonts && document.fonts.ready) {
   document.fonts.ready.then(go);
   setTimeout(go, 1500);
 } else G.boot();
+
+// balance harness: G.simBattle('na', 2, ['rifle','grenadier'], ['rifle','mg','sapper'], 'okafor') -> outcome
+G.simBattle = async (chId, tier, enemies, armyTypes, heroId, boons = []) => {
+  G.newRun(chId, 0, armyTypes, heroId);
+  boons.forEach((b) => G.addBoon(b));
+  const t0 = G.now();
+  const res = await G.battle.run({ enemies, tier, army: G.run.army, bg: 'us_farm' });
+  return { result: res.result, hpLeft: +(res.units.reduce((s, u) => s + (u.dead ? 0 : u.frac), 0) / res.units.length).toFixed(2), wiped: res.units.filter((u) => u.dead).length, secs: +((G.now() - t0) / 1000 * 12).toFixed(0) };
+};

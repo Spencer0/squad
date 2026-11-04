@@ -82,12 +82,12 @@ G.art = (() => {
     c.fillStyle = '#ffb347'; c.beginPath(); c.arc(4, 0, 6, 0, 7); c.fill();
     c.restore();
   }
-  function flame(c, x, y) {
-    const g = c.createLinearGradient(x, y, x + 150, y);
+  function flame(c, x, y, len = 150) {
+    const g = c.createLinearGradient(x, y, x + len, y);
     g.addColorStop(0, '#fff2a8'); g.addColorStop(0.3, '#ffb347'); g.addColorStop(0.8, '#d9480f'); g.addColorStop(1, 'rgba(120,30,10,0)');
     c.fillStyle = g; c.beginPath(); c.moveTo(x, y - 3);
-    c.quadraticCurveTo(x + 80, y - 30 - Math.random() * 8, x + 150, y - 12);
-    c.quadraticCurveTo(x + 90, y + 20 + Math.random() * 8, x, y + 4); c.fill();
+    c.quadraticCurveTo(x + len * 0.55, y - 30 - Math.random() * 8, x + len, y - 12);
+    c.quadraticCurveTo(x + len * 0.6, y + 20 + Math.random() * 8, x, y + 4); c.fill();
   }
 
   // ---------- soldiers ----------
@@ -291,7 +291,7 @@ G.art = (() => {
   const SIZES = {
     soldier: { w: 70, h: 150 }, infantry: { w: 70, h: 150 }, grenadier: { w: 70, h: 150 }, flamer: { w: 76, h: 150 }, ski: { w: 80, h: 150 },
     officer: { w: 70, h: 150 }, mortar: { w: 100, h: 120 }, shock: { w: 92, h: 190 },
-    armoredcar: { w: 190, h: 105 }, bunker: { w: 220, h: 125 }, tank: { w: 240, h: 135 }, relictank: { w: 300, h: 160 }, horror: { w: 260, h: 260 },
+    armoredcar: { w: 190, h: 105 }, bunker: { w: 220, h: 125 }, tank: { w: 240, h: 135 }, relictank: { w: 300, h: 160 }, horror: { w: 260, h: 260 }, colossus: { w: 260, h: 300 },
   };
   const sprites = {};
   const spriteInfo = (art) => G.art.sprites && G.art.sprites[art];
@@ -352,7 +352,7 @@ G.art = (() => {
       if (flash && sp.muzzle) muzzle(c, -sz.w / 2 + sp.muzzle[0] * sz.w, -sz.h + sp.muzzle[1] * sz.h + bob, u.art === 'bunker' ? 1.4 : 2.2);
     } else if (u.side === 'ally') soldier(c, ALLY_GEAR[u.cls] || ALLY_GEAR.rifleman, false, pose, t, flash);
     else if (u.art === 'tank') tank(c, t, false, flash);
-    else if (u.art === 'relictank') tank(c, t, true, flash);
+    else if (u.art === 'relictank' || u.art === 'colossus') tank(c, t, true, flash);
     else if (u.art === 'armoredcar') armoredCar(c, t, flash);
     else if (u.art === 'bunker') bunker(c, t, flash);
     else if (u.art === 'horror') horror(c, t, flash);
@@ -564,5 +564,102 @@ G.art = (() => {
     boss: '<path d="M-12-2a12 12 0 0 1 24 0c0 6-4 7-4 11h-16c0-4-4-5-4-11z" fill="currentColor"/><path d="M-12-6l-3-8 7 4M12-6l3-8-7 4" fill="currentColor"/><circle cx="-4.5" cy="-1" r="3" fill="#57e0a4"/><circle cx="4.5" cy="-1" r="3" fill="#57e0a4"/>',
   };
 
-  return { drawUnit, bg, portrait, size, sprites, spriteInfo, baseScene, BASE_W, BASE_H, STATIONS, icon, NODE_ICONS, rr, muzzle, flame };
+
+  // ---------- squad figures (Blender renders on a fixed 256px canvas, feet at y=250) ----------
+  const FIG_FALLBACK = {
+    rifleman: { side: 'ally', cls: 'rifleman' }, mg: { side: 'ally', cls: 'mg' }, medic: { side: 'ally', cls: 'medic' }, sniper: { side: 'ally', cls: 'sniper' },
+    sapper: { side: 'ally', cls: 'sapper' }, veteran: { side: 'ally', cls: 'veteran' },
+    e_rifleman: { side: 'enemy', art: 'infantry' }, e_grenadier: { side: 'enemy', art: 'grenadier' }, e_flamer: { side: 'enemy', art: 'flamer' },
+    e_ski: { side: 'enemy', art: 'ski' }, e_mortar: { side: 'enemy', art: 'mortar' }, e_officer: { side: 'enemy', art: 'officer' }, e_shock: { side: 'enemy', art: 'shock' },
+  };
+  const figInfo = (name) => G.art.units && G.art.units[name];
+  let figTint = null;
+  function drawFigure(c, name, pose, x, y, s, o = {}) {
+    const info = figInfo(name);
+    const img = info && (pose === 'attack' && info.attackImg ? info.attackImg : info.idleImg);
+    c.save();
+    if (o.alpha !== undefined) c.globalAlpha = o.alpha;
+    if (!img) {
+      // procedural fallback (feet at y)
+      const fb = FIG_FALLBACK[name] || { side: o.flip ? 'enemy' : 'ally', cls: 'rifleman' };
+      c.restore();
+      drawUnit(c, fb, x, y, s * 1.27, { pose: pose === 'down' ? 'down' : pose, t: o.t, alpha: o.alpha, tint: o.tint, flash: pose === 'attack' });
+      return;
+    }
+    const cw = info.canvas[0], ch = info.canvas[1];
+    const k = s; // 1 canvas px = s logical px
+    c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(x, y + 1, 22 * k * 3, 6 * k * 3, 0, 0, 7); c.fill();
+    c.translate(x, y);
+    if (pose === 'down') { c.rotate((o.flip ? 1 : -1) * 1.2); c.translate(0, 10 * k); }
+    if (o.flip) c.scale(-1, 1);
+    if (o.glow) { c.shadowColor = '#6dffb4'; c.shadowBlur = 10; }
+    const dx = (-cw / 2) * k, dy = -(250 / 256) * ch * k;
+    if (o.tint) {
+      if (!figTint) figTint = document.createElement('canvas');
+      figTint.width = cw; figTint.height = ch;
+      const tc = figTint.getContext('2d');
+      tc.clearRect(0, 0, cw, ch); tc.globalCompositeOperation = 'source-over'; tc.drawImage(img, 0, 0);
+      tc.globalCompositeOperation = 'source-atop'; tc.fillStyle = o.tint; tc.fillRect(0, 0, cw, ch);
+      c.drawImage(figTint, dx, dy, cw * k, ch * k);
+    } else c.drawImage(img, dx, dy, cw * k, ch * k);
+    c.restore();
+  }
+  const figMuzzle = (name) => { const i = figInfo(name); return (i && i.muzzle) || [0.78, 0.45]; };
+  const figPortraitCache = {};
+  function figPortrait(name, sz = 64, side = 'ally') {
+    const key = `${name}-${sz}`;
+    if (figPortraitCache[key]) return figPortraitCache[key];
+    const cv = document.createElement('canvas'); cv.width = sz; cv.height = sz;
+    const c = cv.getContext('2d');
+    const enemy = name.startsWith('e_');
+    const g = c.createRadialGradient(sz / 2, sz * 0.4, 4, sz / 2, sz / 2, sz * 0.7);
+    if (!enemy) { g.addColorStop(0, '#8b9558'); g.addColorStop(1, '#2f3620'); } else { g.addColorStop(0, '#8a5a48'); g.addColorStop(1, '#2d1712'); }
+    c.fillStyle = g; c.fillRect(0, 0, sz, sz);
+    const info = figInfo(name);
+    if (info && info.idleImg) {
+      // head and shoulders: the top ~45% of a standing figure
+      const k = (sz / 256) * 2.1;
+      c.drawImage(info.idleImg, sz / 2 - 128 * k, sz * 0.06 - 40 * k * 1.0, 256 * k, 256 * k);
+    } else {
+      const fb = FIG_FALLBACK[name] || { side, cls: 'rifleman' };
+      const s = sz / 62;
+      drawUnit(c, fb, sz / 2 - 2 * s, sz / 2 + 118 * s, s, { t: 0 });
+    }
+    figPortraitCache[key] = cv.toDataURL();
+    return figPortraitCache[key];
+  }
+  function drawTent(c, x, y, s) {
+    const info = figInfo('tent');
+    if (info && info.idleImg) {
+      const k = s * 0.95;
+      c.drawImage(info.idleImg, x - 256 * k, y - (250 / 256) * 256 * k + 26 * s, 512 * k, 256 * k);
+      return;
+    }
+    const k = s * 2.6;
+    c.save(); c.translate(x, y); c.scale(k, k);
+    shape(c, '#7c7446', () => { c.moveTo(-40, 0); c.lineTo(0, -38); c.lineTo(44, 0); c.closePath(); });
+    c.fillStyle = '#3b3824'; c.beginPath(); c.moveTo(-6, 0); c.lineTo(0, -20); c.lineTo(8, 0); c.fill();
+    c.fillStyle = P.white; c.fillRect(20, -44, 14, 10); c.fillStyle = P.olive; c.fillRect(25, -43, 4, 8); c.fillRect(22, -40, 10, 3);
+    limb(c, 20, 0, 20, -46, 1.5, P.brownD);
+    c.restore();
+  }
+  // battle backdrop: Blender render if present (cover-fit into 1000x620), else a painted fallback
+  const BG_FALLBACK = { us_farm: 'hedgerow', us_city: 'village', eu_hedgerow: 'hedgerow', eu_village: 'village', asia_jungle: 'hedgerow', asia_snow: 'snow' };
+  const backdropCache = {};
+  function backdrop(key, w = 1000, h = 620) {
+    const img = G.art.bgImgs && G.art.bgImgs[key];
+    if (!img) return bg(BG_FALLBACK[key] || 'hedgerow', w, h);
+    if (backdropCache[key]) return backdropCache[key];
+    const cv = document.createElement('canvas'); cv.width = w * 1.5; cv.height = h * 1.5;
+    const c = cv.getContext('2d');
+    const sc = Math.max(cv.width / img.width, cv.height / img.height);
+    c.drawImage(img, (cv.width - img.width * sc) / 2, cv.height - img.height * sc, img.width * sc, img.height * sc);
+    const v = c.createRadialGradient(cv.width / 2, cv.height * 0.55, cv.height * 0.3, cv.width / 2, cv.height * 0.55, cv.width * 0.75);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.35)');
+    c.fillStyle = v; c.fillRect(0, 0, cv.width, cv.height);
+    backdropCache[key] = cv;
+    return cv;
+  }
+
+  return { drawUnit, drawFigure, figMuzzle, figPortrait, drawTent, backdrop, bg, portrait, size, sprites, spriteInfo, baseScene, BASE_W, BASE_H, STATIONS, icon, NODE_ICONS, rr, muzzle, flame };
 })();

@@ -1,61 +1,71 @@
 # Squad
 
-A 2D turn-based WW2 squad roguelite with timed inputs, built from the game spec. You command three soldiers through branching operations against the fictional Vossmark army and its occult Lantern Bureau. You draft a new boon build every chapter and bank meta-points at the forward base.
+A WW2-flavored roguelite auto-battler. You command a small army of squads and a hero across real continents against the fictional Vossmark army and its occult Lantern Bureau. Every model is 3D, rendered in Blender. Gameplay is a strict 2D side view, the way Super Smash Bros puts 3D models on a 2D plane.
 
-## Play
+**Play:** https://spencer0.github.io/squad/ (or open `dist/index.html` locally; it's one self-contained file).
 
-Open `dist/index.html` in any browser. It's one self-contained file with no server and no install. It works on phones (sideways gives the biggest battlefield) and on desktop.
+## How it plays
 
-Controls:
+- **World map:** each chapter is a continent: North America (Denver to New York), Europe (Cherbourg to Cologne) and East Asia (Hong Kong to Harbin). Cities are nodes on real geography. Pick your route city to city, and the node types reshuffle every run.
+- **Real-time battles:** squads fire on their own. AP builds over time and from kills; tap a squad's card to cast its ability, and tap an enemy to focus fire. Enemy big attacks show a cast bar, and filling their Break gauge interrupts them. You get items, 1x/2x speed and pause (Space).
+- **Squads, not soldiers:** each unit is a group of 2-5 figures sharing one HP bar. Figures drop as it takes damage, and damage output drops with them. A Medic Tent is a tent plus three medics.
+- **Counters:**
 
-| Action | Touch / mouse | Keyboard |
-| --- | --- | --- |
-| Timed press, beats, hold | the big TAP button or the battlefield | Space (hold Space for hold inputs) |
-| Hit the Dirt (wide window, no damage) | Hit the Dirt button | Space / Z / A / Left |
-| Counter-shot (tight window, +1 AP) | Counter button | X / D / Right |
-| Commands | buttons | 1-5 |
-| Switch target | tap an enemy | Left / Right / Tab |
+  | Attacker | Strong against |
+  | --- | --- |
+  | Rifles | Recon |
+  | Recon (snipers) | Support |
+  | Support (MGs, grenadiers, mortars) | Infantry |
+  | Sappers | Armor |
+  | Armor | Infantry and Support |
 
-## What's in this build
+  An intel report before each fight shows enemy roles so you can deploy the right squads.
+- **Rows:** front-row squads shield the back row. Snipers, enemy ski scouts and mortars can hit the back row anyway.
+- **Veterancy (Halo Wars style):** squads earn XP and rank up from Recruit to Veteran, Elite and Legendary (+15% HP and damage per rank). A wiped squad comes back at low strength and drops a rank. Ranks reset when the chapter ends.
+- **Heroes:** Sgt. Okafor, Doc Halloran (the best medic in the division) and Lt. Vasquez "Ghost". Heroes level up permanently and unlock perks at levels 3, 6 and 9.
+- **Army cap:** squads cost cap points. The cap starts at 6 and grows by 2 per continent cleared, plus up to 3 more from Logistics at the Command Post. Enemies scale up by continent.
+- **Boons:** after battles you pick 1 of 3. There are five doctrines (Incendiary, Field Medic, Recon, Sapper, Captured Relics) plus Duo and Curse cards. The build is wiped when the chapter ends.
+- **Base:** spend meta-points on the command tree, recruits and heroes, armory gear, and unlocks.
 
-- **Forward base:** Command Post (command tree, free respec), Barracks (Sniper, Sapper, second reserve slot, veteran Sgt. Okafor), Quartermaster (armory gear and base upgrades), Relic Crate (doctrine and duo unlocks, codex) and the Radio Tent (mission select, Heat 0-3 on cleared chapters).
-- **Two chapters**, each about 13 stops and 20-30 minutes: *Operation Hedgerow* (boss: the relic tank "Grave Lantern") and *Operation Frostfall* (boss: the Hollow Saint).
-- **Map nodes:** Skirmish, Elite, Intel (7 text events), Supply drop, Field camp, Cache, Strongpoint mini-boss and Boss. The map reshuffles every run; story beats stay fixed.
-- **Combat:** turn-order timeline, Fire / Ability / Item / Take Cover / Swap, and AP. Offense uses three input types: a shrinking ring, rhythm beats and hold-and-release. Defense has Hit the Dirt, Counter-shot and feints. Also Break, Burn, shields, cover, and single/spread/blast targeting.
-- **Boons:** 50 boons across Incendiary, Field Medic, Recon, Sapper, Captured Relics, Duo and Curse cards, plus 6 level-up stat cards. Rerolls and skip-for-gold.
-- **Meta-progression:** points per fight, a clear bonus, Perfect, no-death and speed bonuses, and 25% banked on a loss.
-- **Accessibility:** wider timing windows, auto-timing on offense, auto Hit the Dirt on defense, fast animations, screen shake and sound toggles.
-- **Saves:** stored in the browser automatically after every map step.
+## Art pipeline (Blender 5 as a Python module)
 
-Decisions taken on the spec's open questions: full wipe on clear (no Keepsake), always restart from node 1 on death, short chapters, phone-first layout that also plays on desktop.
+| Script | Renders |
+| --- | --- |
+| `tools/blender/render_sprites.py` | vehicles and bosses (tank, relic tank, armored car, MG bunker, Hollow Saint) |
+| `tools/blender/render_units.py` | squad figures (idle + attack poses on a fixed 256px canvas), the medic tent, the Lantern Colossus |
+| `tools/blender/render_world.py` | battle backdrops, the forward base, and the three continent map boards from Natural Earth data, with city positions projected from the camera |
 
-## Art
-
-- Soldiers, infantry, backdrops, the base, the map and UI are drawn in code (`src/js/art.js`) in a flat cel-shaded style.
-- The war machines (light tank, relic tank, armored car, MG bunker) and the final boss are low-poly 3D models built and rendered in Blender (`tools/blender/render_sprites.py`) with toon banding and an inverted-hull outline, then inlined as sprites. If a sprite is missing, the game falls back to a 2D drawn version.
-
-Re-render the sprites (Blender as a Python module, `pip install bpy`):
+All use emission-only toon banding with an inverted-hull outline. To re-render (after `pip install bpy`):
 
 ```
-python tools/blender/render_sprites.py            # all sprites
-python tools/blender/render_sprites.py tank bunker # just some
+python tools/blender/render_units.py            # everything, or name a few: rifleman e_shock
+python tools/blender/render_world.py na us_farm
 ```
 
 ## Tune and rebuild
 
-All numbers live in `data/*.json`: class stats and abilities, enemies and their moves, boons, chapters and encounter tables, events, meta upgrades, timing windows, rewards and prices. Edit them, then rebuild:
+All numbers live in `data/*.json`:
+
+| File | Contents |
+| --- | --- |
+| `units.json` | squad types |
+| `heroes.json` | heroes |
+| `enemies.json` | enemies |
+| `config.json` | counters table, veterancy, hero levels, army cap, global combat scales, rewards |
+| `chapters.json` | continents and encounter tables |
+| `world.json` | cities and routes |
+| `boons.json` | boons |
+| `meta.json` | meta upgrades |
+| `events.json` | events |
+
+Then rebuild:
 
 ```
 node build.mjs
 ```
 
-This writes `dist/index.html` (standalone) and `dist/artifact.html` (the same page without a document wrapper, for hosting as a Claude artifact).
+This writes `dist/index.html` (standalone, with all art inlined) and `dist/artifact.html`.
 
-Smoke test: open `dist/index.html#autotest` and a bot plays three full chapters at high speed. It reports results in `G.testLog`.
-
-## Stubbed or not yet built
-
-- Operation Iron Tide (the coastal chapter) is listed in the Radio Tent as coming later.
-- Named veterans beyond Sgt. Okafor, and armory relics beyond the Lantern Shard.
-- There is no frame animation. Poses switch (idle, attack, hurt, cover, down) with short tweens.
-- Sound is synthesized beeps and noise bursts; there's no music.
+Testing:
+- `dist/index.html#autotest` plays all three continents with a bot.
+- `G.simBattle(chapter, tier, enemies, army, hero, boons)` in the console simulates a single fight for balance checks.

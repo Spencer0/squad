@@ -1,50 +1,143 @@
 {
-  "timing": {
-    "leadInMs": 260,
-    "ringMs": 900,
-    "perfectMs": 65,
-    "goodMs": 165,
-    "rhythmGapMs": 360,
-    "holdMs": 1100,
-    "holdSweet": 0.82,
-    "dodgeMs": 210,
-    "parryMs": 75,
-    "windowScale": { "normal": 1, "wide": 1.6, "widest": 2.3 }
-  },
   "combat": {
-    "perfectMult": 1.5,
-    "goodMult": 1.0,
-    "missMult": 0.5,
+    "apMax": 10,
+    "apStart": 3,
+    "apPerSec": 0.45,
+    "apPerKill": 1,
     "critMult": 1.75,
     "baseCrit": 0.05,
+    "brokenSec": 3.5,
     "brokenBonus": 0.5,
-    "coverReduce": 0.5,
-    "apMax": 5,
-    "startAp": 1,
-    "burnPerStack": 4,
+    "burnDpsPerStack": 4,
+    "burnDecaySec": 2,
     "burnCap": 12,
     "shieldCapPct": 0.5,
-    "variance": 0.08,
-    "heavyPerfectBreak": 2.0,
-    "reviveFrac": 0.1,
-    "counterMult": 1.0
+    "variance": 0.1,
+    "reviveFrac": 0.15,
+    "smokeSec": 6,
+    "smokeReduce": 0.5,
+    "enemyCastCdMult": 1.0,
+    "flankWhenFrontDown": true,
+    "hpScale": 4,
+    "enemyDmgScale": 1.8,
+    "abilityScale": 3,
+    "healScale": 3,
+    "breakScale": 3.5,
+    "enemyCastScale": 1.5,
+    "allyDmgScale": 1.6,
+    "enemyHpScale": 5
   },
-  "caps": {
-    "burnPerAction": 5,
-    "apPerEvent": 2,
-    "dmgPct": 2.0,
-    "critPct": 0.6,
-    "timeline": 0.6
+  "counters": {
+    "_doc": "damage multiplier by attacker damage type (rows) vs defender role (columns). Rifles beat Recon, Recon beats Support, Support beats Infantry, AT beats Armor, Armor beats Infantry and Support.",
+    "rifle": {
+      "infantry": 1.0,
+      "recon": 1.6,
+      "support": 1.0,
+      "armor": 0.45
+    },
+    "precision": {
+      "infantry": 0.9,
+      "recon": 1.0,
+      "support": 1.6,
+      "armor": 0.6
+    },
+    "blast": {
+      "infantry": 1.6,
+      "recon": 1.0,
+      "support": 0.9,
+      "armor": 0.6
+    },
+    "at": {
+      "infantry": 0.7,
+      "recon": 0.7,
+      "support": 0.8,
+      "armor": 2.0
+    },
+    "cannon": {
+      "infantry": 1.4,
+      "recon": 1.1,
+      "support": 1.4,
+      "armor": 1.0
+    },
+    "melee": {
+      "infantry": 1.3,
+      "recon": 1.3,
+      "support": 1.3,
+      "armor": 0.3
+    }
+  },
+  "veterancy": {
+    "ranks": [
+      "Recruit",
+      "Veteran",
+      "Elite",
+      "Legendary"
+    ],
+    "xp": [
+      0,
+      60,
+      150,
+      300
+    ],
+    "bonusPerRank": 0.15,
+    "xpPerBattle": 25,
+    "xpPerKill": 10,
+    "xpDrill": 45,
+    "rankLossOnWipe": 1
+  },
+  "heroes": {
+    "xpPerLevel": [
+      0,
+      80,
+      200,
+      360,
+      560,
+      800,
+      1100,
+      1450,
+      1850,
+      2300
+    ],
+    "bonusPerLevel": 0.08,
+    "xpPerBattle": 30,
+    "xpPerKill": 8,
+    "xpClear": 120
+  },
+  "cap": {
+    "base": 6,
+    "perClear": 2
   },
   "rewards": {
-    "skirmish": { "gold": [14, 24], "xp": 30, "points": 4 },
-    "elite": { "gold": [32, 44], "xp": 50, "points": 8 },
-    "miniboss": { "gold": [50, 60], "xp": 60, "points": 12 },
-    "boss": { "gold": [0, 0], "xp": 0, "points": 20 },
-    "xpPerLevel": 100,
+    "skirmish": {
+      "gold": [
+        18,
+        28
+      ],
+      "points": 4
+    },
+    "elite": {
+      "gold": [
+        36,
+        48
+      ],
+      "points": 8
+    },
+    "miniboss": {
+      "gold": [
+        55,
+        65
+      ],
+      "points": 12
+    },
+    "boss": {
+      "gold": [
+        0,
+        0
+      ],
+      "points": 20
+    },
     "clearBonus": 15,
-    "noDeathPct": 0.2,
-    "perfectsPerPoint": 6,
+    "noWipePct": 0.2,
     "speedBonusPct": 0.1,
     "speedBonusMinutes": 25,
     "deathBankPct": 0.25,
@@ -59,14 +152,22 @@
     "duo": 160,
     "curse": 70,
     "heal": 40,
-    "healPct": 0.3
+    "healPct": 0.3,
+    "recruitMult": 1.0
   },
   "draft": {
-    "rarityWeights": { "common": 60, "rare": 28, "epic": 9, "curse": 4 },
+    "rarityWeights": {
+      "common": 60,
+      "rare": 28,
+      "epic": 9,
+      "curse": 4
+    },
     "familyBias": 0.6,
     "duoChance": 0.35,
     "baseRerolls": 1
   },
-  "camp": { "healPct": 0.35 },
-  "startGold": 30
+  "camp": {
+    "healPct": 0.35
+  },
+  "startGold": 40
 }

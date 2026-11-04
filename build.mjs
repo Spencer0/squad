@@ -4,8 +4,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 
-const DATA = ['config', 'classes', 'enemies', 'items', 'boons', 'chapters', 'meta', 'events'];
-const JS = ['util', 'audio', 'art', 'state', 'boons', 'timing', 'battle', 'map', 'screens', 'main'];
+const DATA = ['config', 'units', 'heroes', 'enemies', 'items', 'boons', 'chapters', 'meta', 'events', 'world'];
+const JS = ['util', 'audio', 'art', 'state', 'boons', 'battle', 'map', 'screens', 'main'];
 
 const data = {};
 for (const name of DATA) data[name] = JSON.parse(read(`./data/${name}.json`));
@@ -19,6 +19,37 @@ if (existsSync(spriteMeta)) {
     const file = new URL(`./assets/sprites/${s.file}`, import.meta.url);
     if (!existsSync(file)) continue;
     data.sprites[key] = { src: `data:image/png;base64,${readFileSync(file).toString('base64')}`, muzzle: s.muzzle || null };
+  }
+}
+
+// Blender renders: squad figures, backdrops, world maps
+const b64 = (path, mime) => `data:${mime};base64,${readFileSync(new URL(path, import.meta.url)).toString('base64')}`;
+const has = (path) => existsSync(new URL(path, import.meta.url));
+data.assets = { units: {}, bg: { files: {}, stations: null }, maps: {} };
+if (has('./assets/units/units.json')) {
+  for (const [k, u] of Object.entries(JSON.parse(read('./assets/units/units.json')))) {
+    const entry = { canvas: u.canvas, muzzle: u.muzzle || null };
+    if (u.idle && has(`./assets/units/${u.idle}`)) entry.idle = b64(`./assets/units/${u.idle}`, 'image/png');
+    if (u.attack && has(`./assets/units/${u.attack}`)) entry.attack = b64(`./assets/units/${u.attack}`, 'image/png');
+    if (entry.idle) data.assets.units[k] = entry;
+  }
+  // the colossus is a big unit drawn like the vehicles
+  const col = data.assets.units.colossus;
+  if (col) { data.sprites.colossus = { src: col.idle, muzzle: col.muzzle }; delete data.assets.units.colossus; }
+}
+if (has('./assets/bg/bg.json')) {
+  const meta = JSON.parse(read('./assets/bg/bg.json'));
+  const list = Array.isArray(meta) ? meta : meta.files || Object.entries(meta).filter(([k]) => k !== 'stations').map(([name, v]) => ({ name, ...(typeof v === 'object' ? v : {}) }));
+  for (const f of list) {
+    const name = f.name || f.id;
+    const file = f.file || `${name}.jpg`;
+    if (name && has(`./assets/bg/${file}`)) data.assets.bg.files[name.replace(/\.jpg$/, '')] = b64(`./assets/bg/${file}`, 'image/jpeg');
+  }
+  data.assets.bg.stations = meta.stations || (meta.base && meta.base.stations) || null;
+}
+if (has('./assets/maps/maps.json')) {
+  for (const [k, m] of Object.entries(JSON.parse(read('./assets/maps/maps.json')))) {
+    if (has(`./assets/maps/${m.file}`)) data.assets.maps[k] = { src: b64(`./assets/maps/${m.file}`, 'image/jpeg'), w: m.w, h: m.h, cities: m.cities };
   }
 }
 

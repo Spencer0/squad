@@ -1,35 +1,243 @@
 {
   "tracks": {
-    "command": { "name": "Command Tree", "station": "command", "why": "Steady power floor. Respec is free here." },
-    "unlocks": { "name": "Unlocks", "station": "crate", "why": "Variety, not just power" },
-    "barracks": { "name": "Barracks", "station": "barracks", "why": "Changes how builds start" },
-    "armory": { "name": "Armory", "station": "armory", "why": "Pre-run loadout" },
-    "base": { "name": "Base", "station": "armory", "why": "Quality of life" }
+    "command": {
+      "name": "Command Tree",
+      "station": "command",
+      "why": "Steady power floor. Respec is free here."
+    },
+    "unlocks": {
+      "name": "Unlocks",
+      "station": "crate",
+      "why": "Variety, not just power"
+    },
+    "barracks": {
+      "name": "Barracks",
+      "station": "barracks",
+      "why": "New squads and heroes"
+    },
+    "armory": {
+      "name": "Armory",
+      "station": "armory",
+      "why": "Pre-run loadout"
+    },
+    "base": {
+      "name": "Base",
+      "station": "armory",
+      "why": "Quality of life"
+    }
   },
   "upgrades": [
-    { "id": "cmd_hp", "track": "command", "name": "Toughness", "costs": [8, 14, 22], "text": "+5% max HP per rank.", "mods": { "maxHpPct": 0.05 } },
-    { "id": "cmd_dmg", "track": "command", "name": "Marksmanship", "costs": [8, 14, 22], "text": "+5% damage per rank.", "mods": { "dmgPct": 0.05 } },
-    { "id": "cmd_reroll", "track": "command", "name": "Extra Orders", "costs": [10, 20], "text": "+1 draft reroll per chapter per rank.", "mods": { "rerolls": 1 } },
-    { "id": "cmd_promo", "track": "command", "name": "Field Promotion", "costs": [15], "text": "Start each chapter by drafting 1 Common boon." },
-    { "id": "cmd_ap", "track": "command", "name": "Ready Stance", "costs": [18], "text": "+1 AP at the start of each battle.", "mods": { "startAp": 1 } },
-
-    { "id": "unl_sapper", "track": "unlocks", "name": "Sapper Doctrine", "costs": [12], "text": "Sapper boons appear in drafts: Break, explosives, anti-heavy." },
-    { "id": "unl_duo", "track": "unlocks", "name": "Duo Cards", "costs": [18], "text": "Duo boons appear when you hold boons from two matching doctrines." },
-    { "id": "unl_relic", "track": "unlocks", "name": "Captured Relics", "costs": [25], "text": "Relic boons appear in drafts and caches. Strong, with a price." },
-    { "id": "unl_curse", "track": "unlocks", "name": "Cursed Contracts", "costs": [14], "text": "Curse boons can appear: a strong effect tied to a drawback." },
-
-    { "id": "bar_sniper", "track": "barracks", "name": "Recruit: Sniper", "costs": [15], "text": "Adds the Sniper class. Headshot: massive single-target damage and Break." },
-    { "id": "bar_sapper", "track": "barracks", "name": "Recruit: Sapper", "costs": [15], "text": "Adds the Sapper class. Trench Gun hits a target and its neighbours; Satchel Charge blasts all." },
-    { "id": "bar_reserve2", "track": "barracks", "name": "Second Reserve", "costs": [20], "text": "Bring two soldiers in reserve instead of one." },
-    { "id": "bar_vet", "track": "barracks", "name": "Veteran: Sgt. Okafor", "costs": [30], "text": "A named veteran with more HP, Speed and a four-shot Lucky Streak." },
-
-    { "id": "arm_optics", "track": "armory", "name": "Scoped Optics", "costs": [12], "text": "+6% crit chance for the whole squad.", "mods": { "critPct": 0.06 } },
-    { "id": "arm_grenades", "track": "armory", "name": "Grenade Crate", "costs": [10], "text": "Start each chapter with 2 Grenades." },
-    { "id": "arm_medical", "track": "armory", "name": "Medical Locker", "costs": [10], "text": "Start each chapter with a Med Kit and a Stimulant." },
-    { "id": "arm_shard", "track": "armory", "name": "Lantern Shard", "costs": [22], "text": "Captured relic. Battles open with 1 Burn on every enemy." },
-
-    { "id": "base_supply", "track": "base", "name": "Better Supply Drops", "costs": [12], "text": "Supply drops stock one more boon and cost 15% less." },
-    { "id": "base_camp", "track": "base", "name": "Field Hospital Tents", "costs": [10], "text": "Field camps heal 50% instead of 35%." },
-    { "id": "base_gold", "track": "base", "name": "Pay Chest", "costs": [10], "text": "Start each chapter with 40 more gold." }
+    {
+      "id": "cmd_cap",
+      "track": "command",
+      "name": "Logistics",
+      "costs": [
+        12,
+        20,
+        30
+      ],
+      "text": "+1 army cap per rank."
+    },
+    {
+      "id": "cmd_hp",
+      "track": "command",
+      "name": "Toughness",
+      "costs": [
+        8,
+        14,
+        22
+      ],
+      "text": "+5% squad HP per rank.",
+      "mods": {
+        "maxHpPct": 0.05
+      }
+    },
+    {
+      "id": "cmd_dmg",
+      "track": "command",
+      "name": "Marksmanship",
+      "costs": [
+        8,
+        14,
+        22
+      ],
+      "text": "+5% damage per rank.",
+      "mods": {
+        "dmgPct": 0.05
+      }
+    },
+    {
+      "id": "cmd_ap",
+      "track": "command",
+      "name": "Ready Reserves",
+      "costs": [
+        10,
+        18
+      ],
+      "text": "+1 starting AP per rank.",
+      "mods": {
+        "startAp": 1
+      }
+    },
+    {
+      "id": "cmd_reroll",
+      "track": "command",
+      "name": "Extra Orders",
+      "costs": [
+        10,
+        20
+      ],
+      "text": "+1 draft reroll per chapter per rank.",
+      "mods": {
+        "rerolls": 1
+      }
+    },
+    {
+      "id": "cmd_promo",
+      "track": "command",
+      "name": "Field Promotion",
+      "costs": [
+        15
+      ],
+      "text": "Start each chapter by drafting 1 Common boon."
+    },
+    {
+      "id": "unl_sapper",
+      "track": "unlocks",
+      "name": "Sapper Doctrine",
+      "costs": [
+        12
+      ],
+      "text": "Sapper boons appear in drafts: Break, explosives, anti-armor."
+    },
+    {
+      "id": "unl_duo",
+      "track": "unlocks",
+      "name": "Duo Cards",
+      "costs": [
+        18
+      ],
+      "text": "Duo boons appear when you hold boons from two matching doctrines."
+    },
+    {
+      "id": "unl_relic",
+      "track": "unlocks",
+      "name": "Captured Relics",
+      "costs": [
+        25
+      ],
+      "text": "Relic boons appear in drafts and caches. Strong, with a price."
+    },
+    {
+      "id": "unl_curse",
+      "track": "unlocks",
+      "name": "Cursed Contracts",
+      "costs": [
+        14
+      ],
+      "text": "Curse boons can appear: a strong effect tied to a drawback."
+    },
+    {
+      "id": "bar_sniper",
+      "track": "barracks",
+      "name": "Sniper Teams",
+      "costs": [
+        12
+      ],
+      "text": "Recruit Sniper Teams: back-row precision that beats Support."
+    },
+    {
+      "id": "hero_doc",
+      "track": "barracks",
+      "name": "Hero: Doc Halloran",
+      "costs": [
+        25
+      ],
+      "text": "The best medic in the division. Heals everyone and pulls squads back from the brink."
+    },
+    {
+      "id": "hero_ghost",
+      "track": "barracks",
+      "name": "Hero: Lt. Vasquez \"Ghost\"",
+      "costs": [
+        30
+      ],
+      "text": "A legendary sniper. Deletes key targets and breaks bosses."
+    },
+    {
+      "id": "bar_vet",
+      "track": "barracks",
+      "name": "Veteran Recruits",
+      "costs": [
+        20
+      ],
+      "text": "Squads start each chapter at Veteran rank."
+    },
+    {
+      "id": "arm_optics",
+      "track": "armory",
+      "name": "Scoped Optics",
+      "costs": [
+        12
+      ],
+      "text": "+6% crit chance for the whole army.",
+      "mods": {
+        "critPct": 0.06
+      }
+    },
+    {
+      "id": "arm_grenades",
+      "track": "armory",
+      "name": "Grenade Crates",
+      "costs": [
+        10
+      ],
+      "text": "Start each chapter with 2 Grenade Crates."
+    },
+    {
+      "id": "arm_medical",
+      "track": "armory",
+      "name": "Medical Locker",
+      "costs": [
+        10
+      ],
+      "text": "Start each chapter with a Med Kit and Stimulants."
+    },
+    {
+      "id": "arm_shard",
+      "track": "armory",
+      "name": "Lantern Shard",
+      "costs": [
+        22
+      ],
+      "text": "Captured relic. Battles open with 2 Burn on every enemy."
+    },
+    {
+      "id": "base_supply",
+      "track": "base",
+      "name": "Better Supply Drops",
+      "costs": [
+        12
+      ],
+      "text": "Supply drops stock one more boon and cost 15% less."
+    },
+    {
+      "id": "base_camp",
+      "track": "base",
+      "name": "Field Hospital Tents",
+      "costs": [
+        10
+      ],
+      "text": "Field camps heal 50% instead of 35%."
+    },
+    {
+      "id": "base_gold",
+      "track": "base",
+      "name": "Pay Chest",
+      "costs": [
+        10
+      ],
+      "text": "Start each chapter with 40 more gold."
+    }
   ]
 }

@@ -7,19 +7,17 @@ G.familyCounts = () => {
   const counts = {};
   for (const id of G.run.boons) {
     const b = G.boonById(id);
-    if (!b || b.family === 'stat' || b.type === 'duo') continue;
+    if (!b || b.type === 'duo') continue;
     counts[b.family] = (counts[b.family] || 0) + 1;
   }
   return counts;
 };
-G.hasClass = (cls) => G.run.squad.some((s) => s.cls === cls);
+G.hasUnit = (type) => G.run.army.some((s) => s.type === type);
 
 G.boonEligible = (b, kind) => {
   const held = G.run.boons.includes(b.id);
   if (held && !b.stack) return false;
-  if (kind === 'stat') return b.family === 'stat';
-  if (b.family === 'stat') return false;
-  if (b.class && !G.hasClass(b.class)) return false;
+  if (b.unit && !G.hasUnit(b.unit)) return false;
   if (b.type === 'duo') {
     if (!G.has('unl_duo') || kind === 'common') return false;
     const counts = G.familyCounts();
@@ -64,7 +62,7 @@ G.offerBoons = ({ count = 3, kind = 'normal', guaranteeRare = false } = {}) => {
   return G.shuffle(out);
 };
 
-G.familyOf = (b) => D.boons.families[b.family] || D.boons.families.stat;
+G.familyOf = (b) => D.boons.families[b.family];
 G.rarityLabel = (r) => ({ common: 'Common', rare: 'Rare', epic: 'Epic', duo: 'Duo', curse: 'Curse' }[r] || r);
 G.typeLabel = (t) => ({ upgrade: 'Upgrade', trigger: 'Trigger', stat: 'Stat', duo: 'Duo', curse: 'Curse' }[t] || t);
 G.boonPrice = (b) => {

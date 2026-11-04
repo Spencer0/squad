@@ -1,72 +1,380 @@
 [
   {
-    "id": "hedgerow",
-    "name": "Operation Hedgerow",
-    "place": "Bocage country, 40 km inland",
-    "blurb": "Break through the hedgerows and find the tank that the radio crews say glows at night.",
-    "recLevel": 0,
+    "id": "na",
+    "name": "Operation Liberty",
+    "place": "North America",
+    "blurb": "The Vossmark landed on the east coast and hold New York. Push east from Denver and take it back.",
+    "recCap": 6,
     "scale": 1.0,
-    "rowScale": 0.05,
-    "bgs": ["hedgerow", "village"],
-    "bossBg": "village",
+    "tierScale": 0.07,
+    "bgs": {
+      "default": [
+        "us_farm",
+        "us_city"
+      ],
+      "boss": "us_city"
+    },
     "encounters": {
-      "early": [["rifleman", "rifleman"], ["rifleman", "rifleman", "rifleman"], ["rifleman", "grenadier"], ["grenadier", "rifleman", "rifleman"]],
-      "late": [["rifleman", "grenadier", "rifleman", "rifleman"], ["flamer", "rifleman", "rifleman"], ["armoredcar"], ["grenadier", "flamer", "grenadier"], ["rifleman", "armoredcar", "rifleman"]],
-      "elite": [["officer", "rifleman", "rifleman"], ["shock"], ["officer", "flamer"]],
-      "miniboss": ["rifleman", "bunker", "rifleman"],
-      "boss": ["rifleman", "relictank", "grenadier"]
+      "early": [
+        [
+          "rifle",
+          "rifle"
+        ],
+        [
+          "rifle",
+          "grenadier"
+        ],
+        [
+          "rifle",
+          "ski"
+        ],
+        [
+          "grenadier",
+          "rifle",
+          "rifle"
+        ]
+      ],
+      "late": [
+        [
+          "rifle",
+          "grenadier",
+          "rifle"
+        ],
+        [
+          "flamer",
+          "rifle",
+          "ski"
+        ],
+        [
+          "armoredcar",
+          "rifle"
+        ],
+        [
+          "grenadier",
+          "mortar",
+          "rifle"
+        ],
+        [
+          "ski",
+          "ski",
+          "rifle"
+        ]
+      ],
+      "elite": [
+        [
+          "officer",
+          "rifle",
+          "grenadier"
+        ],
+        [
+          "shock",
+          "rifle"
+        ],
+        [
+          "armoredcar",
+          "officer"
+        ]
+      ],
+      "miniboss": [
+        "rifle",
+        "bunker",
+        "grenadier"
+      ],
+      "boss": [
+        "rifle",
+        "relictank",
+        "grenadier"
+      ]
     },
     "story": {
       "start": [
-        { "who": "radio", "text": "Able Squad, this is Hearth. You're through the beach line. Push inland along the hedgerows." },
-        { "who": "radio", "text": "Recon keeps reporting a Vossmark tank that shrugs off bazookas. Some say it glows. Probably nerves." },
-        { "who": "rifleman", "text": "Copy, Hearth. Probably nerves." }
+        {
+          "who": "radio",
+          "text": "Able Company, this is Hearth. The Vossmark hold the whole eastern seaboard. You're the spearhead out of Denver."
+        },
+        {
+          "who": "radio",
+          "text": "Recon keeps reporting a tank in New York that shrugs off bazookas. Some say it glows. Probably nerves."
+        },
+        {
+          "who": "hero",
+          "text": "Copy, Hearth. Probably nerves."
+        }
       ],
       "mid": [
-        { "who": "radio", "text": "There's an MG bunker covering the crossroads. You won't get the column past it." },
-        { "who": "mg", "text": "Then we take the bunker." }
+        {
+          "who": "radio",
+          "text": "Pittsburgh is a fortress. There's an MG bunker covering the river crossings. Bring sappers if you have them."
+        }
       ],
       "end": [
-        { "who": "medic", "text": "That's it. That's the tank. Look at the hull." },
-        { "who": "radio", "text": "Hearth to Able. Those marks are not paint. Whatever the Lantern Bureau did to it, put it down." }
+        {
+          "who": "hero",
+          "text": "That's it. That's the tank. Look at the hull."
+        },
+        {
+          "who": "radio",
+          "text": "Those marks are not paint. Whatever the Lantern Bureau did to it, put it down. It's armor, so hit it with charges."
+        }
       ],
       "win": [
-        { "who": "radio", "text": "Good work, Able. The column moves at dawn. Bring what's left of that relic back to base. Carefully." }
+        {
+          "who": "radio",
+          "text": "New York is free. Ships are waiting to take you across the Atlantic. Europe is next."
+        }
       ]
     }
   },
   {
-    "id": "frostfall",
-    "name": "Operation Frostfall",
-    "place": "The Kessel Forest, winter",
-    "blurb": "The Lantern Bureau has a camp deep in the pines. Something answers their radios.",
-    "recLevel": 6,
-    "scale": 1.3,
-    "rowScale": 0.05,
-    "bgs": ["snow"],
-    "bossBg": "snow",
-    "unlockAfter": "hedgerow",
+    "id": "eu",
+    "name": "Operation Hedgerow",
+    "place": "Europe",
+    "blurb": "Land at Cherbourg and fight through the bocage to the Lantern Bureau's foundry at Cologne.",
+    "recCap": 8,
+    "scale": 1.2,
+    "tierScale": 0.07,
+    "unlockAfter": "na",
+    "bgs": {
+      "default": [
+        "eu_hedgerow",
+        "eu_village"
+      ],
+      "boss": "eu_village"
+    },
     "encounters": {
-      "early": [["ski", "ski"], ["ski", "rifleman", "ski"], ["mortar", "ski"], ["rifleman", "rifleman", "grenadier"]],
-      "late": [["ski", "mortar", "ski", "ski"], ["flamer", "ski", "flamer"], ["tank"], ["mortar", "rifleman", "mortar"], ["ski", "armoredcar", "ski"]],
-      "elite": [["shock", "ski"], ["officer", "mortar", "ski"], ["shock", "shock"]],
-      "miniboss": ["ski", "tank", "ski"],
-      "boss": ["shock", "horror", "shock"]
+      "early": [
+        [
+          "rifle",
+          "rifle",
+          "grenadier"
+        ],
+        [
+          "rifle",
+          "mortar"
+        ],
+        [
+          "ski",
+          "rifle",
+          "rifle"
+        ],
+        [
+          "flamer",
+          "rifle"
+        ]
+      ],
+      "late": [
+        [
+          "rifle",
+          "grenadier",
+          "mortar"
+        ],
+        [
+          "armoredcar",
+          "rifle",
+          "rifle"
+        ],
+        [
+          "tank",
+          "rifle"
+        ],
+        [
+          "flamer",
+          "flamer",
+          "ski"
+        ],
+        [
+          "officer",
+          "rifle",
+          "mortar"
+        ]
+      ],
+      "elite": [
+        [
+          "shock",
+          "officer"
+        ],
+        [
+          "tank",
+          "grenadier"
+        ],
+        [
+          "shock",
+          "shock"
+        ]
+      ],
+      "miniboss": [
+        "rifle",
+        "tank",
+        "mortar"
+      ],
+      "boss": [
+        "shock",
+        "colossus",
+        "grenadier"
+      ]
     },
     "story": {
       "start": [
-        { "who": "radio", "text": "Able, Hearth. That relic you brought back keeps humming. Intelligence traced its signal here." },
-        { "who": "medic", "text": "Lovely. A haunted forest in January." }
+        {
+          "who": "radio",
+          "text": "Welcome to France, Able. That relic tank had a twin. Intelligence traced its maker to a foundry in Cologne."
+        },
+        {
+          "who": "hero",
+          "text": "Then we go to Cologne."
+        }
       ],
       "mid": [
-        { "who": "radio", "text": "A tank is guarding the logging road. Break it and the camp is open." }
+        {
+          "who": "radio",
+          "text": "A tank is holding Reims. Break it and the road east is open."
+        }
       ],
       "end": [
-        { "who": "rifleman", "text": "Hearth, the singing stopped. There's something standing in the clearing." },
-        { "who": "radio", "text": "Then it can bleed. Light it up, Able." }
+        {
+          "who": "hero",
+          "text": "Hearth, the foundry is empty. Something walked out of it."
+        },
+        {
+          "who": "radio",
+          "text": "Then it's out in the open. Light it up, Able."
+        }
       ],
       "win": [
-        { "who": "radio", "text": "Signal's gone dark. Come home, Able. Next operation is the coast. We'll talk when you're back." }
+        {
+          "who": "radio",
+          "text": "The foundry's dark. One last signal is coming from the far east, near Harbin. Get some rest. You're shipping out."
+        }
+      ]
+    }
+  },
+  {
+    "id": "asia",
+    "name": "Operation Frostfall",
+    "place": "East Asia",
+    "blurb": "From Hong Kong's jungle hills to the frozen north. Something at Harbin answers the Lantern Bureau's radios.",
+    "recCap": 10,
+    "scale": 1.45,
+    "tierScale": 0.07,
+    "unlockAfter": "eu",
+    "bgs": {
+      "default": [
+        "asia_jungle"
+      ],
+      "north": [
+        "asia_snow"
+      ],
+      "northFromTier": 6,
+      "boss": "asia_snow"
+    },
+    "encounters": {
+      "early": [
+        [
+          "rifle",
+          "ski",
+          "grenadier"
+        ],
+        [
+          "mortar",
+          "rifle",
+          "rifle"
+        ],
+        [
+          "flamer",
+          "flamer",
+          "rifle"
+        ],
+        [
+          "ski",
+          "ski",
+          "grenadier"
+        ]
+      ],
+      "late": [
+        [
+          "tank",
+          "rifle",
+          "mortar"
+        ],
+        [
+          "shock",
+          "rifle",
+          "ski"
+        ],
+        [
+          "armoredcar",
+          "armoredcar",
+          "rifle"
+        ],
+        [
+          "officer",
+          "grenadier",
+          "mortar"
+        ],
+        [
+          "flamer",
+          "tank"
+        ]
+      ],
+      "elite": [
+        [
+          "shock",
+          "shock",
+          "officer"
+        ],
+        [
+          "tank",
+          "tank"
+        ],
+        [
+          "shock",
+          "mortar",
+          "ski"
+        ]
+      ],
+      "miniboss": [
+        "armoredcar",
+        "bunker",
+        "mortar"
+      ],
+      "boss": [
+        "shock",
+        "horror",
+        "shock"
+      ]
+    },
+    "story": {
+      "start": [
+        {
+          "who": "radio",
+          "text": "Last stretch, Able. The relics you brought back keep humming the same note. It's coming from Harbin."
+        },
+        {
+          "who": "hero",
+          "text": "Lovely. All the way to Manchuria in January."
+        }
+      ],
+      "mid": [
+        {
+          "who": "radio",
+          "text": "Zhengzhou is the gate to the north. They've dug in a bunker line there."
+        }
+      ],
+      "end": [
+        {
+          "who": "hero",
+          "text": "Hearth, the singing stopped. There's something standing in the snow."
+        },
+        {
+          "who": "radio",
+          "text": "Then it can bleed. Finish this, Able."
+        }
+      ],
+      "win": [
+        {
+          "who": "radio",
+          "text": "Signal's gone. The Lantern Bureau is finished. Come home, Able Company. You did it."
+        }
       ]
     }
   }

@@ -1,0 +1,122 @@
+{
+  "rifle": {
+    "name": "Rifle Squad",
+    "figure": "rifleman",
+    "count": 5,
+    "role": "infantry",
+    "dmgType": "rifle",
+    "row": "front",
+    "cost": 2,
+    "recruit": 60,
+    "hp": 130,
+    "dmg": 6,
+    "rate": 1.4,
+    "unlock": null,
+    "blurb": "Line infantry. Beats Recon. Weak to Support and Armor.",
+    "ability": {
+      "id": "volley",
+      "name": "Volley Fire",
+      "ap": 3,
+      "cd": 10,
+      "haste": 5,
+      "text": "Fires twice as fast for 5 seconds."
+    }
+  },
+  "mg": {
+    "name": "MG Team",
+    "figure": "mg",
+    "count": 3,
+    "role": "support",
+    "dmgType": "blast",
+    "row": "front",
+    "cost": 2,
+    "recruit": 70,
+    "hp": 115,
+    "dmg": 4,
+    "rate": 0.8,
+    "spread": true,
+    "unlock": null,
+    "blurb": "Sprays a target and its neighbours. Beats Infantry. Weak to Recon.",
+    "ability": {
+      "id": "suppress",
+      "name": "Suppressing Fire",
+      "ap": 4,
+      "cd": 12,
+      "blastDmg": 14,
+      "slow": 4,
+      "text": "Hits every enemy for 14 and slows their attacks for 4 seconds."
+    }
+  },
+  "sniper": {
+    "name": "Sniper Team",
+    "figure": "sniper",
+    "count": 2,
+    "role": "recon",
+    "dmgType": "precision",
+    "row": "back",
+    "cost": 2,
+    "recruit": 80,
+    "hp": 75,
+    "dmg": 17,
+    "rate": 2.6,
+    "unlock": "bar_sniper",
+    "blurb": "Picks off specialists from the back row. Beats Support. Weak to Infantry.",
+    "ability": {
+      "id": "headshot",
+      "name": "Headshot",
+      "ap": 3,
+      "cd": 9,
+      "nuke": 60,
+      "breakDmg": 60,
+      "text": "60 damage and heavy Break to the focused target."
+    }
+  },
+  "sapper": {
+    "name": "Sapper Team",
+    "figure": "sapper",
+    "count": 3,
+    "role": "support",
+    "dmgType": "at",
+    "row": "front",
+    "cost": 2,
+    "recruit": 80,
+    "hp": 110,
+    "dmg": 9,
+    "rate": 2.0,
+    "unlock": null,
+    "blurb": "Anti-armor charges. Beats Armor. Weak to Recon.",
+    "ability": {
+      "id": "satchel",
+      "name": "Satchel Charges",
+      "ap": 4,
+      "cd": 12,
+      "blastDmg": 26,
+      "breakAll": 50,
+      "text": "Blasts every enemy for 26 and fills their Break."
+    }
+  },
+  "medic": {
+    "name": "Medic Tent",
+    "figure": "medic",
+    "tent": true,
+    "count": 3,
+    "role": "support",
+    "dmgType": "heal",
+    "row": "back",
+    "cost": 3,
+    "recruit": 90,
+    "hp": 120,
+    "heal": 7,
+    "rate": 2.0,
+    "unlock": null,
+    "blurb": "Heals the most wounded squad and patches up fallen soldiers.",
+    "ability": {
+      "id": "surgery",
+      "name": "Field Surgery",
+      "ap": 4,
+      "cd": 14,
+      "healAllPct": 0.25,
+      "text": "Heals every squad 25% of max HP."
+    }
+  }
+}

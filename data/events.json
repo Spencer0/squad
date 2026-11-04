@@ -1,73 +1,221 @@
 [
-  {
-    "id": "farmer",
-    "title": "The Farmer's Back Road",
-    "text": "An old farmer waves you into his barn. He says he knows a sunken lane the Vossmark patrols never use.",
-    "choices": [
-      { "label": "Follow him", "chance": 0.6,
-        "success": { "gold": 45, "say": "The lane leads past an abandoned supply cart. +45 gold." },
-        "fail": { "damagePct": 0.12, "say": "A patrol was waiting at the end of the lane. The squad takes 12% damage getting out." } },
-      { "label": "Buy his map (20 gold)", "cost": 20, "outcome": { "rerolls": 1, "say": "The map is good. +1 draft reroll." } },
-      { "label": "Move on", "outcome": { "say": "You thank him and keep moving." } }
-    ]
-  },
-  {
-    "id": "pilot",
-    "title": "Downed Pilot",
-    "text": "A fighter pilot is hanging from a tree by his parachute, one leg broken. Vossmark voices are getting closer.",
-    "choices": [
-      { "label": "Carry him out", "outcome": { "damagePct": 0.1, "boon": "rare", "say": "It's a hard march. He gives you something from his flight bag." } },
-      { "label": "Take his flare pistol", "outcome": { "item": "smoke", "say": "You leave him water and take the flares. +1 Smoke Grenade." } },
-      { "label": "Leave him rations and go", "outcome": { "points": 2, "say": "Hearth logs the position for a rescue team. +2 meta-points." } }
-    ]
-  },
-  {
-    "id": "hospital",
-    "title": "Abandoned Field Hospital",
-    "text": "A shelled aid station, tents half collapsed. Some of the supply crates are still sealed.",
-    "choices": [
-      { "label": "Raid the supplies", "outcome": { "item": "medkit", "item2": "stim", "say": "+1 Med Kit, +1 Stimulant." } },
-      { "label": "Rest for an hour", "outcome": { "healPct": 0.25, "say": "The squad patches up. Everyone heals 25%." } }
-    ]
-  },
-  {
-    "id": "signal",
-    "title": "Strange Radio Signal",
-    "text": "Your radio picks up chanting under the static. It's coming from a cellar a few hundred metres off the route.",
-    "occult": true,
-    "choices": [
-      { "label": "Trace it", "outcome": { "fight": "elite", "boon": "relic", "say": "Something in that cellar was guarding a relic." } },
-      { "label": "Jam the frequency", "outcome": { "points": 3, "say": "Hearth wants a recording. +3 meta-points." } }
-    ]
-  },
-  {
-    "id": "crate",
-    "title": "The Glowing Crate",
-    "text": "A Vossmark crate stamped with a lantern sigil. It is warm to the touch and faintly green at the seams.",
-    "occult": true,
-    "choices": [
-      { "label": "Pry it open", "outcome": { "damagePct": 0.1, "boon": "curse", "say": "It bites. But what's inside is powerful." } },
-      { "label": "Leave it alone", "outcome": { "say": "Probably wise." } }
-    ]
-  },
-  {
-    "id": "mixup",
-    "title": "Supply Mix-up",
-    "text": "A lost supply truck from another division offers to swap crates with you. Their manifest is smudged.",
-    "choices": [
-      { "label": "Swap crates", "chance": 0.5,
-        "success": { "gold": 60, "say": "Their crate is full of trade goods. +60 gold." },
-        "fail": { "gold": -20, "say": "Spare boot laces. You're out 20 gold of rations." } },
-      { "label": "Keep your own", "outcome": { "say": "The truck rattles off." } }
-    ]
-  },
-  {
-    "id": "prisoner",
-    "title": "Wounded Prisoner",
-    "text": "A Vossmark private surrenders, bleeding. He keeps glancing at the tree line.",
-    "choices": [
-      { "label": "Interrogate him", "outcome": { "gold": 25, "points": 2, "say": "He gives up a supply cache and a patrol schedule. +25 gold, +2 meta-points." } },
-      { "label": "Patch him up and send him back", "outcome": { "healPct": 0.15, "say": "Your medic works fast. The squad is calmer for it. Everyone heals 15%." } }
-    ]
-  }
+ {
+  "id": "farmer",
+  "title": "The Farmer's Back Road",
+  "text": "An old farmer waves you into his barn. He says he knows a sunken lane the Vossmark patrols never use.",
+  "choices": [
+   {
+    "label": "Follow him",
+    "chance": 0.6,
+    "success": {
+     "gold": 45,
+     "say": "The lane leads past an abandoned supply cart. +45 gold."
+    },
+    "fail": {
+     "damagePct": 0.12,
+     "say": "A patrol was waiting at the end of the lane. Your army takes 12% damage getting out."
+    }
+   },
+   {
+    "label": "Buy his map (20 gold)",
+    "cost": 20,
+    "outcome": {
+     "rerolls": 1,
+     "say": "The map is good. +1 draft reroll."
+    }
+   },
+   {
+    "label": "Move on",
+    "outcome": {
+     "say": "You thank him and keep moving."
+    }
+   }
+  ]
+ },
+ {
+  "id": "pilot",
+  "title": "Downed Pilot",
+  "text": "A fighter pilot is hanging from a tree by his parachute, one leg broken. Vossmark voices are getting closer.",
+  "choices": [
+   {
+    "label": "Carry him out",
+    "outcome": {
+     "damagePct": 0.1,
+     "boon": "rare",
+     "say": "It's a hard march. He gives you something from his flight bag."
+    }
+   },
+   {
+    "label": "Take his flare pistol",
+    "outcome": {
+     "item": "smoke",
+     "say": "You leave him water and take the flares. +1 Smoke Grenade."
+    }
+   },
+   {
+    "label": "Leave him rations and go",
+    "outcome": {
+     "points": 2,
+     "say": "Hearth logs the position for a rescue team. +2 meta-points."
+    }
+   }
+  ]
+ },
+ {
+  "id": "hospital",
+  "title": "Abandoned Field Hospital",
+  "text": "A shelled aid station, tents half collapsed. Some of the supply crates are still sealed.",
+  "choices": [
+   {
+    "label": "Raid the supplies",
+    "outcome": {
+     "item": "medkit",
+     "item2": "stim",
+     "say": "+1 Med Kit, +1 Stimulant."
+    }
+   },
+   {
+    "label": "Rest for an hour",
+    "outcome": {
+     "healPct": 0.25,
+     "say": "Your army patches up. Every squad heals 25%."
+    }
+   }
+  ]
+ },
+ {
+  "id": "signal",
+  "title": "Strange Radio Signal",
+  "text": "Your radio picks up chanting under the static. It's coming from a cellar a few hundred metres off the route.",
+  "occult": true,
+  "choices": [
+   {
+    "label": "Trace it",
+    "outcome": {
+     "fight": "elite",
+     "boon": "relic",
+     "say": "Something in that cellar was guarding a relic."
+    }
+   },
+   {
+    "label": "Jam the frequency",
+    "outcome": {
+     "points": 3,
+     "say": "Hearth wants a recording. +3 meta-points."
+    }
+   }
+  ]
+ },
+ {
+  "id": "crate",
+  "title": "The Glowing Crate",
+  "text": "A Vossmark crate stamped with a lantern sigil. It is warm to the touch and faintly green at the seams.",
+  "occult": true,
+  "choices": [
+   {
+    "label": "Pry it open",
+    "outcome": {
+     "damagePct": 0.1,
+     "boon": "curse",
+     "say": "It bites. But what's inside is powerful."
+    }
+   },
+   {
+    "label": "Leave it alone",
+    "outcome": {
+     "say": "Probably wise."
+    }
+   }
+  ]
+ },
+ {
+  "id": "mixup",
+  "title": "Supply Mix-up",
+  "text": "A lost supply truck from another division offers to swap crates with you. Their manifest is smudged.",
+  "choices": [
+   {
+    "label": "Swap crates",
+    "chance": 0.5,
+    "success": {
+     "gold": 60,
+     "say": "Their crate is full of trade goods. +60 gold."
+    },
+    "fail": {
+     "gold": -20,
+     "say": "Spare boot laces. You're out 20 gold of rations."
+    }
+   },
+   {
+    "label": "Keep your own",
+    "outcome": {
+     "say": "The truck rattles off."
+    }
+   }
+  ]
+ },
+ {
+  "id": "prisoner",
+  "title": "Wounded Prisoner",
+  "text": "A Vossmark private surrenders, bleeding. He keeps glancing at the tree line.",
+  "choices": [
+   {
+    "label": "Interrogate him",
+    "outcome": {
+     "gold": 25,
+     "points": 2,
+     "say": "He gives up a supply cache and a patrol schedule. +25 gold, +2 meta-points."
+    }
+   },
+   {
+    "label": "Patch him up and send him back",
+    "outcome": {
+     "healPct": 0.15,
+     "say": "Your medic works fast. Your army is calmer for it. Every squad heals 15%."
+    }
+   }
+  ]
+ },
+ {
+  "id": "volunteers",
+  "title": "Volunteers",
+  "text": "A resistance cell has been holding this town on its own. Their leader asks to join you, or at least to share what they know.",
+  "choices": [
+   {
+    "label": "Take them in",
+    "outcome": {
+     "recruit": "rifle",
+     "say": "A fresh Rifle Squad joins your army."
+    }
+   },
+   {
+    "label": "Train with them",
+    "outcome": {
+     "xp": 40,
+     "say": "A day of drills with people who know the ground. Every squad gains 40 XP."
+    }
+   }
+  ]
+ },
+ {
+  "id": "depot",
+  "title": "Abandoned Motor Pool",
+  "text": "A Vossmark motor pool, abandoned in a hurry. Fuel drums, crates, and an armored car with a cracked engine block.",
+  "choices": [
+   {
+    "label": "Booby-trap the car and move on",
+    "outcome": {
+     "points": 2,
+     "item": "grenade",
+     "say": "Your sappers rig it. +1 Grenade Crate, +2 meta-points."
+    }
+   },
+   {
+    "label": "Strip it for parts",
+    "outcome": {
+     "gold": 50,
+     "say": "+50 gold in salvage."
+    }
+   }
+  ]
+ }
 ]
